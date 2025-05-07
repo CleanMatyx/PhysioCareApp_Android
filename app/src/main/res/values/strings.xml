@@ -7,5 +7,21 @@
     <string name="logout_message">Sesión cerrada</string>
     <string name="app_name">PhysioCare</string>
     <string name="patient_detail_title">Detalle Paciente</string>
+    <string name="perfil_de">Perfil de %1$s</string>
+    <string name="appointments_title">Citas</string>
+    <string name="appointment_physio">Fisioterapeuta: %1$s</string>
+    <string name="appointment_date">Fecha: %1$s</string>
+    <string name="appointment_diagnosis">Diagnóstico: %1$s</string>
+    <string name="appointment_treatment">Tratamiento: %1$s</string>
+    <string name="appointment_observations">Observaciones: %1$s</string>
+    <string name="none">Ninguna</string>
+    <string name="loading">Cargando...</string>
+    <string name="no_consultations">No hay consultas</string>
+    <string name="consultation_patient">Paciente: %1$s</string>
+    <string name="consultation_physio">Fisioterapeuta: %1$s</string>
+    <string name="consultation_date">Fecha: %1$s</string>
+    <string name="consultation_diagnosis">Diagnóstico: %1$s</string>
+    <string name="consultation_treatment">Tratamiento: %1$s</string>
+    <string name="consultation_observations">Observaciones: %1$s</string>
 
 </resources>

@@ -28,6 +28,10 @@ class PhysioRepository(
     suspend fun getPatient(token: String, id: String): ApiResponse<PatientItem> =
         remote.fetchPatientById(token, id)
 
+    suspend fun getPatientDetail(token: String, id: String): ApiResponse<PatientDetailResponse> =
+        remote.getPatientDetail(token, id)
+
+
     suspend fun createPatient(
         token: String,
         patient: PatientItem

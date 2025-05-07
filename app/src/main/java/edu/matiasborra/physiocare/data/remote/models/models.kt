@@ -33,10 +33,11 @@ data class PhysioItem(
 
 data class AppointmentItem(
     val date: String,
-    val physio: String,
+    val physio: PhysioBrief?,
     val diagnosis: String,
     val treatment: String,
-    val observations: String?
+    val observations: String?,
+    val _id: String
 )
 
 data class RecordItem(

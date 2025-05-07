@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.auth.SessionManager
 import edu.matiasborra.physiocare.data.remote.RemoteDataSource
-import edu.matiasborra.physiocare.data.remote.models.PatientItem
-import edu.matiasborra.physiocare.data.remote.models.RecordItem
 import edu.matiasborra.physiocare.data.remote.models.AppointmentItem
+import edu.matiasborra.physiocare.data.remote.models.PatientDetailResponse
+import edu.matiasborra.physiocare.data.remote.models.PatientItem
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,24 +39,19 @@ class PatientDetailViewModel(
 
             val token = session.getToken.firstOrNull().orEmpty()
             try {
-                // Traigo el record completo
-                val recordResp = repo.getRecord(token, patientId)
-
-                if (recordResp.ok && recordResp.result != null) {
-                    val record: RecordItem = recordResp.result
-                    val apps: List<AppointmentItem> = record.appointments
-
-                    val patResp = repo.getPatient(token, patientId)
-                    if (patResp.ok && patResp.result != null) {
-                        _uiState.value = PatientDetailUiState.Success(patResp.result, apps)
-                    } else {
-                        throw Exception(patResp.message ?: "No se pudo cargar datos del paciente")
-                    }
+                val resp = repo.getPatientDetail(token, patientId)
+                if (resp.ok && resp.result != null) {
+                    val detail: PatientDetailResponse = resp.result
+                    // Aplanamos todos los appointments de cada record
+                    val apps: List<AppointmentItem> =
+                        detail.records.flatMap { it.appointments }
+                    _uiState.value = PatientDetailUiState.Success(detail.patient, apps)
                 } else {
-                    throw Exception(recordResp.message ?: "Error al cargar record")
+                    throw Exception(resp.message ?: "Error al cargar detalle")
                 }
             } catch (e: Exception) {
-                _uiState.value = PatientDetailUiState.Error(e.localizedMessage ?: "Error inesperado")
+                _uiState.value =
+                    PatientDetailUiState.Error(e.localizedMessage ?: "Error inesperado")
             }
         }
     }
@@ -68,8 +63,8 @@ class PatientDetailViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")
             return PatientDetailViewModel(
-                repo      = PhysioRepository(RemoteDataSource()),
-                session   = app.sessionManager,
+                repo = PhysioRepository(RemoteDataSource()),
+                session = app.sessionManager,
                 patientId = patientId
             ) as T
         }

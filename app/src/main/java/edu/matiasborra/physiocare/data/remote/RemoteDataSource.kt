@@ -40,6 +40,10 @@ class RemoteDataSource {
     suspend fun fetchPatientById(token: String, id: String): ApiResponse<PatientItem> =
         api.getPatient("Bearer $token", id)
 
+    suspend fun getPatientDetail(token: String, id: String): ApiResponse<PatientDetailResponse> {
+        return api.getPatientDetail("Bearer $token", id)
+    }
+
     suspend fun createPatient(
         token: String,
         newPatient: PatientItem

@@ -1,4 +1,3 @@
-// File: app/src/main/java/edu/matiasborra/physiocare/ui/main/MainActivity.kt
 package edu.matiasborra.physiocare.ui.main
 
 import android.content.Intent
@@ -20,6 +19,7 @@ import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.databinding.ActivityMainBinding
 import edu.matiasborra.physiocare.ui.login.LoginActivity
+import edu.matiasborra.physiocare.ui.main.consultations.ConsultationsFragment
 import edu.matiasborra.physiocare.ui.main.patients.PatientsFragment
 import kotlinx.coroutines.launch
 

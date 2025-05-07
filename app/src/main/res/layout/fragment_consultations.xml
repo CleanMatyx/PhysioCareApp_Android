@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/consultations_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
-    <!-- Provisional: un RecyclerView vacío -->
+    <!-- Estado de carga / error -->
+    <TextView
+        android:id="@+id/tvLoadingConsultations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/loading"
+        android:visibility="gone"
+        android:gravity="center"/>
+
+    <!-- Lista de consultas -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvConsultations"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <!-- Mensaje de carga mientras implementas la lógica -->
-    <TextView
-        android:id="@+id/tvLoadingConsultations"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cargando consultas…"
-        android:layout_gravity="center"/>
 </FrameLayout>

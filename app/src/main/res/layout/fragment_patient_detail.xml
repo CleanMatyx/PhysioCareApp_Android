@@ -1,55 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/container"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- ProgressBar de carga -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
-
-        <!-- Error -->
+        <!-- Título dinámico -->
         <TextView
-            android:id="@+id/tvError"
+            android:id="@+id/tvTitle"
+            style="?attr/textAppearanceHeadline6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_dark"
-            android:visibility="gone"
-            android:paddingTop="8dp"/>
+            android:paddingBottom="16dp"/>
 
-        <!-- Nombre completo -->
+        <!-- DATOS BÁSICOS (siempre visibles) -->
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:paddingTop="16dp"/>
-
-        <!-- Fecha de nacimiento -->
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/tvBirth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="4dp"/>
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"/>
+        <TextView
+            android:id="@+id/tvInsurance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"/>
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"/>
 
-        <!-- Más campos, listas de citas o records según necesites -->
-        <!-- Por ejemplo: -->
-        <!-- <androidx.recyclerview.widget.RecyclerView
-             android:id="@+id/rvAppointments"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:paddingTop="16dp"/> -->
+        <!-- Contenedor de citas -->
+        <LinearLayout
+            android:id="@+id/containerAppointments"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvAppointmentsTitle"
+                style="?attr/textAppearanceSubtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/appointments_title"
+                android:paddingTop="16dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAppointments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+        </LinearLayout>
 
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</ScrollView>

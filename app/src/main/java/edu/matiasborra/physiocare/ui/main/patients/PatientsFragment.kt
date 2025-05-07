@@ -1,7 +1,6 @@
 package edu.matiasborra.physiocare.ui.main.patients
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -15,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.R
+import edu.matiasborra.physiocare.auth.SessionManager
 import edu.matiasborra.physiocare.data.remote.RemoteDataSource
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 import edu.matiasborra.physiocare.databinding.FragmentPatientsBinding
@@ -31,29 +31,31 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
 
     private var _binding: FragmentPatientsBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var adapter: PatientAdapter
-
-    private var userRole: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentPatientsBinding.bind(view)
 
-        // Intento de capurar el rol del usuario
+        // 1) Leemos rol y userId
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                app.sessionManager.sessionFlow.collect { (_, _, _, role) ->
-                    userRole = role.orEmpty()
-                    Log.d("PatientsFragment", "User role Fragment: $userRole")
-                    Log.d("PatientsFragment", "User role Activity: ${app.sessionManager.getRole.firstOrNull()}")
-                    Log.d("PatientsFragment", "User token: ${app.sessionManager.getToken.firstOrNull()}")
-                    Log.d("PatientsFragment", "User id: ${app.sessionManager.getUserId.firstOrNull()}")
-                }
-            }
-        }
+            val sd = app.sessionManager.sessionFlow.firstOrNull()
+            val role   = sd?.role.orEmpty()
+            val userId = sd?.userId.orEmpty()
 
-        adapter = PatientAdapter { patient ->
-            if (userRole != "patient") {
+            if (role == "patient") {
+                // Navegamos directamente al detalle del propio paciente
+                parentFragmentManager.commit {
+                    replace(
+                        R.id.nav_host_container,
+                        PatientDetailFragment.newInstance(userId)
+                    )
+                }
+                return@launch
+            }
+
+            // 2) Solo fisioterapeutas/admins llegan aquí: inicializamos la lista
+            adapter = PatientAdapter { patient ->
+                // clic sobre un paciente: navegar a su detalle
                 parentFragmentManager.commit {
                     replace(
                         R.id.nav_host_container,
@@ -62,37 +64,39 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
                     addToBackStack(null)
                 }
             }
-        }
 
-        binding.rvPatients.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = this@PatientsFragment.adapter
-        }
+            binding.rvPatients.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                adapter = this@PatientsFragment.adapter
+            }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    when (state) {
-                        is PatientsUiState.Loading -> {
-                            binding.tvLoadingPatients.isVisible = true
-                            binding.rvPatients.isVisible = false
-                        }
-                        is PatientsUiState.Success -> {
-                            binding.tvLoadingPatients.isVisible = false
-                            binding.rvPatients.isVisible = true
-                            adapter.submitList(state.patients)
-                        }
-                        is PatientsUiState.Error -> {
-                            binding.tvLoadingPatients.text = state.message
-                            binding.tvLoadingPatients.isVisible = true
-                            binding.rvPatients.isVisible = false
+            // 3) Observamos el estado de carga de la lista
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.uiState.collect { state ->
+                        when (state) {
+                            is PatientsUiState.Loading -> {
+                                binding.tvLoadingPatients.isVisible = true
+                                binding.rvPatients.isVisible = false
+                            }
+                            is PatientsUiState.Success -> {
+                                binding.tvLoadingPatients.isVisible = false
+                                binding.rvPatients.isVisible = true
+                                adapter.submitList(state.patients)
+                            }
+                            is PatientsUiState.Error -> {
+                                binding.tvLoadingPatients.text = state.message
+                                binding.tvLoadingPatients.isVisible = true
+                                binding.rvPatients.isVisible = false
+                            }
                         }
                     }
                 }
             }
-        }
 
-        viewModel.loadPatients()
+            // 4) Disparamos la carga de todos los pacientes
+            viewModel.loadPatients()
+        }
     }
 
     override fun onDestroyView() {
@@ -101,11 +105,22 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
     }
 }
 
+/**
+ * Factory para crear PatientsViewModel, inyectando PhysioRepository y SessionManager.
+ */
 @Suppress("UNCHECKED_CAST")
-class PatientsViewModelFactory(app: PhysioApp) : ViewModelProvider.Factory {
-    private val repo    = PhysioRepository(RemoteDataSource())
-    private val session = app.sessionManager
+class PatientsViewModelFactory(
+    app: PhysioApp
+) : ViewModelProvider.Factory {
 
-    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        PatientsViewModel(repo, session) as T
+    // Creamos el repo y obtenemos el sessionManager del Application
+    private val repo: PhysioRepository = PhysioRepository(RemoteDataSource())
+    private val session: SessionManager = app.sessionManager
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(PatientsViewModel::class.java)) {
+            return PatientsViewModel(repo, session) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
+    }
 }

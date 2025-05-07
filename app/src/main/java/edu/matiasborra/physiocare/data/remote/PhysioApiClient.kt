@@ -2,6 +2,8 @@ package edu.matiasborra.physiocare.data.remote
 
 import edu.matiasborra.physiocare.auth.LoginResponse
 import edu.matiasborra.physiocare.data.remote.models.*
+import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.http.*
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,9 +21,21 @@ class PhysioApiClient {
          * @return CoffeeAPIInterface Instancia de la interfaz de la API.
          * @author Matias Borra
          */
+
         fun getRetrofit2Api(): PhysioApiService {
-            return Retrofit.Builder().baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build()
+            val logging = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+
+            val client = OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build()
+
+            return Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
                 .create(PhysioApiService::class.java)
         }
     }
@@ -54,6 +68,12 @@ interface PhysioApiService {
         @Header("Authorization") token: String,
         @Path("id") id: String
     ): ApiResponse<PatientItem>
+
+    @GET("patients/{id}")
+    suspend fun getPatientDetail(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): ApiResponse<PatientDetailResponse>
 
     @POST("patients")
     suspend fun createPatient(
