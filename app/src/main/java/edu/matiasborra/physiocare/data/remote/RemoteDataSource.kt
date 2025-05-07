@@ -1,0 +1,110 @@
+package edu.matiasborra.physiocare.data.remote
+
+import edu.matiasborra.physiocare.data.remote.models.*
+
+/**
+ * Fuente de datos remota para acceder a la API de PhysioCare.
+ * @constructor Crea una instancia de RemoteDataSource.
+ * @author Matias Borra
+ */
+class RemoteDataSource {
+
+    private val api: PhysioApiService by lazy {
+        PhysioApiClient.getRetrofit2Api()
+    }
+
+    // --- Autenticación ---
+    suspend fun login(login: String, password: String): ApiResponse<LoginResult> {
+        val raw = api.login(LoginRequest(login, password))
+        return if (raw.ok && raw.token != null) {
+            ApiResponse(ok = true, result = LoginResult(raw.token), message = null)
+        } else {
+            ApiResponse(ok = false, result = null, message = raw.error)
+        }
+    }
+
+    suspend fun logout(token: String): ApiResponse<MessageResponse> =
+        api.logout("Bearer $token")
+
+    // --- Pacientes ---
+    suspend fun fetchAllPatients(token: String): ApiResponse<List<PatientItem>> =
+        api.getPatients("Bearer $token")
+
+    suspend fun searchPatients(
+        token: String,
+        name: String?,
+        surname: String?
+    ): ApiResponse<List<PatientItem>> =
+        api.findPatients("Bearer $token", name, surname)
+
+    suspend fun fetchPatientById(token: String, id: String): ApiResponse<PatientItem> =
+        api.getPatient("Bearer $token", id)
+
+    suspend fun createPatient(
+        token: String,
+        newPatient: PatientItem
+    ): ApiResponse<PatientItem> =
+        api.createPatient("Bearer $token", newPatient)
+
+    suspend fun updatePatient(
+        token: String,
+        id: String,
+        updatedPatient: PatientItem
+    ): ApiResponse<PatientItem> =
+        api.updatePatient("Bearer $token", id, updatedPatient)
+
+    suspend fun deletePatient(token: String, id: String): ApiResponse<PatientItem> =
+        api.deletePatient("Bearer $token", id)
+
+    // --- Fisioterapeutas ---
+    suspend fun fetchAllPhysios(token: String): ApiResponse<List<PhysioItem>> =
+        api.getPhysios("Bearer $token")
+
+    suspend fun searchPhysios(
+        token: String,
+        specialty: String?
+    ): ApiResponse<List<PhysioItem>> =
+        api.findPhysios("Bearer $token", specialty)
+
+    suspend fun fetchPhysioById(token: String, id: String): ApiResponse<PhysioItem> =
+        api.getPhysio("Bearer $token", id)
+
+    suspend fun createPhysio(
+        token: String,
+        newPhysio: PhysioItem
+    ): ApiResponse<PhysioItem> =
+        api.createPhysio("Bearer $token", newPhysio)
+
+    suspend fun updatePhysio(
+        token: String,
+        id: String,
+        updatedPhysio: PhysioItem
+    ): ApiResponse<PhysioItem> =
+        api.updatePhysio("Bearer $token", id, updatedPhysio)
+
+    suspend fun deletePhysio(token: String, id: String): ApiResponse<PhysioItem> =
+        api.deletePhysio("Bearer $token", id)
+
+    // --- Expedientes y Citas ---
+    suspend fun fetchRecords(token: String): ApiResponse<List<RecordItem>> =
+        api.getRecords("Bearer $token")
+
+    suspend fun fetchAppointments(token: String): ApiResponse<List<AppointmentFlat>> =
+        api.getAppointments("Bearer $token")
+
+    suspend fun fetchRecordById(token: String, id: String): ApiResponse<RecordItem> =
+        api.getRecord("Bearer $token", id)
+
+    suspend fun createRecord(
+        token: String,
+        newRecord: RecordItem
+    ): ApiResponse<RecordItem> =
+        api.createRecord("Bearer $token", newRecord)
+
+    suspend fun addAppointment(
+        token: String,
+        recordId: String,
+        newApp: AppointmentRequest
+    ): ApiResponse<RecordItem> =
+        api.addAppointment("Bearer $token", recordId, newApp)
+}

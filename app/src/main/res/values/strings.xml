@@ -1,0 +1,11 @@
+<resources>
+    <string name="patient_name_format">%1$s %2$s</string>
+    <string name="patient_birth_format">Fecha de nacimiento: %1$s</string>
+    <string name="user_info">Usuario: %1$s\nID: %2$s · Rol: %3$s</string>
+    <string name="consultations_title">Consultas</string>
+    <string name="patients_title">Pacientes</string>
+    <string name="logout_message">Sesión cerrada</string>
+    <string name="app_name">PhysioCare</string>
+    <string name="patient_detail_title">Detalle Paciente</string>
+
+</resources>
