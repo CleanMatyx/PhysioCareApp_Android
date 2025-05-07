@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 sealed class LoginUiState {
-    object Idle    : LoginUiState()
+    object Idle : LoginUiState()
     object Loading : LoginUiState()
     object Success : LoginUiState()
     data class Error(val message: String) : LoginUiState()
@@ -28,7 +28,7 @@ class LoginViewModel(
         if (username.isBlank() || password.isBlank()) {
             _uiState.value = LoginUiState.Error("Usuario y contraseña obligatorios")
             return
-        }
+
 
         viewModelScope.launch {
             _uiState.value = LoginUiState.Loading
@@ -36,11 +36,9 @@ class LoginViewModel(
                 val resp = repo.login(username, password)
                 if (resp.ok && resp.result != null) {
                     val token = resp.result.token
-                    // Decodifica el JWT para extraer id y rol pero no funciona...
-                    val jwt    = JWT(token)
+                    val jwt = JWT(token)
                     val userId = jwt.getClaim("id").asString().orEmpty()
-                    val role   = jwt.getClaim("role").asString().orEmpty()
-                    // Guardamos token, username, userId y role
+                    val role = jwt.getClaim("rol").asString().orEmpty()
                     session.saveSession(token, username, userId, role)
                     _uiState.value = LoginUiState.Success
                 } else {
