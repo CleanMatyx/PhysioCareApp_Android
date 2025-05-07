@@ -47,6 +47,7 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
                     Log.d("PatientsFragment", "User role Fragment: $userRole")
                     Log.d("PatientsFragment", "User role Activity: ${app.sessionManager.getRole.firstOrNull()}")
                     Log.d("PatientsFragment", "User token: ${app.sessionManager.getToken.firstOrNull()}")
+                    Log.d("PatientsFragment", "User id: ${app.sessionManager.getUserId.firstOrNull()}")
                 }
             }
         }
