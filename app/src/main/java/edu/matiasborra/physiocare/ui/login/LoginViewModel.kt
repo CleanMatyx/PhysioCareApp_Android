@@ -36,7 +36,7 @@ class LoginViewModel(
                 val resp = repo.login(username, password)
                 if (resp.ok && resp.result != null) {
                     val token = resp.result.token
-                    // Decodificamos el JWT para extraer id y rol
+                    // Decodifica el JWT para extraer id y rol pero no funciona...
                     val jwt    = JWT(token)
                     val userId = jwt.getClaim("id").asString().orEmpty()
                     val role   = jwt.getClaim("role").asString().orEmpty()

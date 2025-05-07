@@ -16,19 +16,15 @@ class PatientDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 1) Inflamos el binding
         binding = ActivityPatientDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 2) Toolbar vía binding
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // 3) Leemos el argumento
         val patientId = intent.getStringExtra(EXTRA_PATIENT_ID)
             ?: run { finish(); return }
 
-        // 4) Insertamos el fragmento en el contenedor de binding
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 replace(

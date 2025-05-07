@@ -34,13 +34,12 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
 
     private lateinit var adapter: PatientAdapter
 
-    // Mantendremos el rol aquí para usarlo en el click
     private var userRole: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentPatientsBinding.bind(view)
 
-        // 1) Capturamos el rol del usuario
+        // Intento de capurar el rol del usuario
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 app.sessionManager.sessionFlow.collect { (_, _, _, role) ->
@@ -52,9 +51,7 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
             }
         }
 
-        // 2) Inicializamos el adapter
         adapter = PatientAdapter { patient ->
-            // Sólo admin o physio: navegamos
             if (userRole != "patient") {
                 parentFragmentManager.commit {
                     replace(
@@ -66,13 +63,11 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
             }
         }
 
-        // 3) Asignamos LayoutManager y adapter
         binding.rvPatients.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@PatientsFragment.adapter
         }
 
-        // 4) Observamos el estado de carga
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
@@ -96,7 +91,6 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
             }
         }
 
-        // 5) Disparamos la carga
         viewModel.loadPatients()
     }
 
@@ -106,7 +100,6 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
     }
 }
 
-// Factory para inyectar repo y sessionManager
 @Suppress("UNCHECKED_CAST")
 class PatientsViewModelFactory(app: PhysioApp) : ViewModelProvider.Factory {
     private val repo    = PhysioRepository(RemoteDataSource())

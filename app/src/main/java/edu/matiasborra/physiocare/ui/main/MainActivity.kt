@@ -15,7 +15,6 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.auth0.android.jwt.JWT
 import com.google.android.material.snackbar.Snackbar
 import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.R
@@ -42,7 +41,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Inicialmente ocultamos el info de usuario
         binding.tvUserInfo.isVisible = false
 
         setSupportActionBar(binding.toolbar)

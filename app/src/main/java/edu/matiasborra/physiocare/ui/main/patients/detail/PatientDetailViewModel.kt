@@ -39,16 +39,13 @@ class PatientDetailViewModel(
 
             val token = session.getToken.firstOrNull().orEmpty()
             try {
-                // 1) traemos el record completo
+                // Traigo el record completo
                 val recordResp = repo.getRecord(token, patientId)
 
                 if (recordResp.ok && recordResp.result != null) {
                     val record: RecordItem = recordResp.result
                     val apps: List<AppointmentItem> = record.appointments
 
-                    // 3) si quieres además el paciente:
-                    //    record.patient es en tu modelo un String con id, así que ya tienes patientId
-                    //    para datos del paciente real, puedes llamar a repo.getPatient(token, patientId)
                     val patResp = repo.getPatient(token, patientId)
                     if (patResp.ok && patResp.result != null) {
                         _uiState.value = PatientDetailUiState.Success(patResp.result, apps)

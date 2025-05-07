@@ -40,7 +40,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 0) Si ya hay token, saltamos el login
         lifecycleScope.launch {
             val token = session.getToken.firstOrNull().orEmpty()
             if (token.isNotBlank()) {
@@ -49,11 +48,9 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // 1) Seteamos ViewBinding
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 2) Opcional: ocultar la barra de título
         supportActionBar?.hide()
 
         setupListeners()

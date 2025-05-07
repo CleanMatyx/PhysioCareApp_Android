@@ -45,7 +45,6 @@ class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
                         binding.progressBar.isVisible = false
                         binding.tvError   .isVisible = false
 
-                        // Usamos placeholders de recursos en lugar de concatenar
                         binding.tvName .text = getString(
                             R.string.patient_name_format,
                             state.patient.name,
@@ -55,7 +54,7 @@ class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
                             R.string.patient_birth_format,
                             state.patient.birthDate
                         )
-                        // …poblar aquí tus listas de citas o records…
+                        // hueco para poblar más datos
                     }
                     is PatientDetailUiState.Error -> {
                         binding.progressBar.isVisible = false

@@ -29,7 +29,6 @@ class PatientsViewModel(
         viewModelScope.launch {
             _uiState.value = PatientsUiState.Loading
 
-            // 1) lee token y decodifica rol y id
             val token = session.getToken.firstOrNull().orEmpty()
             val jwt   = JWT(token)
             val role  = jwt.getClaim("role").asString().orEmpty()
@@ -37,12 +36,10 @@ class PatientsViewModel(
 
             try {
                 val resp = if (role == "patient") {
-                    // sólo tu paciente
                     val single = repo.getPatient(token, userId)
                     if (single.ok && single.result != null) listOf(single.result)
                     else throw Exception(single.message ?: "No se pudo cargar tu paciente")
                 } else {
-                    // admin o physio: todos
                     val all = repo.getPatients(token)
                     if (all.ok && all.result != null) all.result
                     else throw Exception(all.message ?: "Error al cargar pacientes")
