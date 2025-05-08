@@ -1,6 +1,7 @@
 package edu.matiasborra.physiocare.ui.main.patients
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -41,6 +42,8 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
             val sd = app.sessionManager.sessionFlow.firstOrNull()
             val role   = sd?.role.orEmpty()
             val userId = sd?.userId.orEmpty()
+
+            Log.d("PatientsFragment", "onViewCreated: role=$role, userId=$userId")
 
             if (role == "patient") {
                 // Navegamos directamente al detalle del propio paciente
@@ -114,8 +117,8 @@ class PatientsViewModelFactory(
 ) : ViewModelProvider.Factory {
 
     // Creamos el repo y obtenemos el sessionManager del Application
-    private val repo: PhysioRepository = PhysioRepository(RemoteDataSource())
     private val session: SessionManager = app.sessionManager
+    private val repo: PhysioRepository = PhysioRepository(RemoteDataSource(), session)
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PatientsViewModel::class.java)) {

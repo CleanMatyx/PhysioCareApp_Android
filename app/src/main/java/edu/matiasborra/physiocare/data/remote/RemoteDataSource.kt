@@ -1,5 +1,6 @@
 package edu.matiasborra.physiocare.data.remote
 
+import edu.matiasborra.physiocare.auth.LoginResponse
 import edu.matiasborra.physiocare.data.remote.models.*
 
 /**
@@ -14,14 +15,9 @@ class RemoteDataSource {
     }
 
     // --- Autenticación ---
-    suspend fun login(login: String, password: String): ApiResponse<LoginResult> {
-        val raw = api.login(LoginRequest(login, password))
-        return if (raw.ok && raw.token != null) {
-            ApiResponse(ok = true, result = LoginResult(raw.token), message = null)
-        } else {
-            ApiResponse(ok = false, result = null, message = raw.error)
-        }
-    }
+    suspend fun login(login: String, password: String): LoginResponse =
+        api.login(LoginRequest(login, password))
+
 
     suspend fun logout(token: String): ApiResponse<MessageResponse> =
         api.logout("Bearer $token")
@@ -41,11 +37,8 @@ class RemoteDataSource {
         api.getPatient("Bearer $token", id)
 
     /** Trae paciente + records en un sólo call */
-    suspend fun getPatientDetail(token: String, patientId: String)
-            : ApiResponse<PatientDetailResponse> {
-        return api.getPatientDetail("Bearer $token", patientId)
-    }
-
+    suspend fun getPatientDetail(token: String, id: String): ApiResponse<PatientDetailResponse> =
+        api.getPatientDetail("Bearer $token", id)
 
     suspend fun createPatient(
         token: String,
@@ -108,18 +101,24 @@ class RemoteDataSource {
     ): ApiResponse<RecordItem> =
         api.createRecord("Bearer $token", newRecord)
 
-    suspend fun addAppointment(
-        token: String,
-        recordId: String,
-        newApp: AppointmentRequest
-    ): ApiResponse<RecordItem> =
-        api.addAppointment("Bearer $token", recordId, newApp)
+//    suspend fun addAppointment(
+//        token: String,
+//        recordId: String,
+//        newApp: AppointmentRequest
+//    ): ApiResponse<RecordItem> =
+//        api.addAppointment("Bearer $token", recordId, newApp
+
+    suspend fun addAppointment(token: String, recordId: String, req: AppointmentRequest) =
+        api.addAppointment("Bearer $token", recordId, req)
 
     /** Trae detalle de cita por su id */
-    suspend fun getAppointmentDetail(token: String, appointmentId: String)
-            : ApiResponse<AppointmentItem> {
-        return api.getAppointmentDetail("Bearer $token", appointmentId)
-    }
+//    suspend fun getAppointmentDetail(token: String, appointmentId: String)
+//            : ApiResponse<AppointmentItem> {
+//        return api.getAppointmentDetail("Bearer $token", appointmentId)
+//    }
+
+    suspend fun getAppointmentDetail(token: String, id: String) =
+        api.getAppointmentDetail("Bearer $token", id)
 
     /**
      * Para pacientes: extrae sólo sus citas de dentro de PatientDetailResponse.
@@ -130,19 +129,20 @@ class RemoteDataSource {
     ): ApiResponse<List<AppointmentFlat>> {
         val resp = api.getPatientDetail("Bearer $token", patientId)
         return if (resp.ok && resp.result != null) {
-            // aplanamos todas las citas de todos los records
             val allApps = resp.result.records
                 .flatMap { it.appointments }
                 .map { app ->
                     AppointmentFlat(
+                        id = app._id,
                         patientName = "${resp.result.patient.name} ${resp.result.patient.surname}",
-                        physioName  = app.physio
+                        physioName = app.physio
                             ?.let { "${it.name} ${it.surname}" }
                             .orEmpty(),
-                        date        = app.date,
-                        diagnosis   = app.diagnosis,
-                        treatment   = app.treatment,
-                        observations= app.observations
+                        date = app.date,
+                        diagnosis = app.diagnosis,
+                        treatment = app.treatment,
+                        observations = app.observations.toString(),
+                        physioId = app.physio?._id
                     )
                 }
             ApiResponse(ok = true, result = allApps, message = null)
@@ -160,4 +160,8 @@ class RemoteDataSource {
             ApiResponse(ok = false, result = null, message = resp.message)
         }
     }
+
+    suspend fun getAppointmentsByPhysio(token: String, physioId: String): ApiResponse<List<AppointmentFlat>> =
+        api.getAppointmentsByPhysio("Bearer $token", physioId)
+
 }

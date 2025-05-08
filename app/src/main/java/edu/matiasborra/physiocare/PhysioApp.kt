@@ -8,5 +8,5 @@ import edu.matiasborra.physiocare.data.repository.PhysioRepository
 
 class PhysioApp : Application() {
     val sessionManager by lazy { SessionManager(this.dataStore) }
-    val physioRepo    by lazy { PhysioRepository(RemoteDataSource()) }
+    val physioRepo by lazy { PhysioRepository(RemoteDataSource(), sessionManager) }
 }

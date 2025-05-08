@@ -42,9 +42,7 @@ sealed class LoginState {
  * @author Matias Borra
  */
 data class LoginRequest(
-    @SerializedName("usuario")
-    val user: String,
-    @SerializedName("password")
+    val login: String,
     val password: String
 )
 
@@ -52,15 +50,15 @@ data class LoginRequest(
  * Respuesta de inicio de sesión.
  * @property ok Indica si la autenticación fue exitosa.
  * @property token Token de autenticación.
- * @property message Mensaje de la respuesta.
- * @property username Nombre de usuario.
+ * @property error Mensaje de error en caso de fallo.
  * @constructor Crea una instancia de LoginResponse.
  * @author Matias Borra
  */
 data class LoginResponse(
-    @SerializedName("ok")
     val ok: Boolean,
-    @SerializedName("token")
     val token: String?,
+    val userId: String?,
+    val login: String?,
+    val rol: String?,
     val error: String?
 )

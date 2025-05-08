@@ -27,32 +27,21 @@ class PatientsViewModel(
     fun loadPatients() {
         viewModelScope.launch {
             _uiState.value = PatientsUiState.Loading
-
-            // 1) Leemos token, userId y role desde SessionManager
-            val sd      = session.sessionFlow.firstOrNull()
-            val token   = sd?.token.orEmpty()
-            val userId  = sd?.userId.orEmpty()
-            val role    = sd?.role.orEmpty()
+            val sd     = session.sessionFlow.firstOrNull()
+            val token  = sd?.token.orEmpty()
+            val role   = sd?.role.orEmpty()
+            val userId = sd?.userId.orEmpty()
 
             try {
                 val list = if (role == "patient") {
-                    // 2) Si soy patient, llamo a getPatientDetail y extraigo .patient
-                    val detailResp = repo.getPatientDetail(token, userId)
-                    if (detailResp.ok && detailResp.result != null) {
-                        listOf(detailResp.result.patient)
-                    } else {
-                        throw Exception(detailResp.message ?: "No se pudo cargar tu perfil")
-                    }
+                    val single = repo.getPatient(token, userId)
+                    if (single.ok && single.result != null) listOf(single.result)
+                    else throw Exception(single.message ?: "Error al cargar perfil")
                 } else {
-                    // 3) Si soy physio/admin, cargo la lista completa
                     val all = repo.getPatients(token)
-                    if (all.ok && all.result != null) {
-                        all.result
-                    } else {
-                        throw Exception(all.message ?: "Error al cargar pacientes")
-                    }
+                    if (all.ok && all.result != null) all.result
+                    else throw Exception(all.message ?: "Error al cargar pacientes")
                 }
-
                 _uiState.value = PatientsUiState.Success(list)
             } catch (e: Exception) {
                 _uiState.value = PatientsUiState.Error(e.localizedMessage ?: "Error inesperado")

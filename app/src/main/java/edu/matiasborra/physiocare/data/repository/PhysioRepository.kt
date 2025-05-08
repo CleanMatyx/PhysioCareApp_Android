@@ -1,14 +1,19 @@
 package edu.matiasborra.physiocare.data.repository
 
+import edu.matiasborra.physiocare.auth.LoginResponse
+import edu.matiasborra.physiocare.auth.SessionManager
 import edu.matiasborra.physiocare.data.remote.RemoteDataSource
 import edu.matiasborra.physiocare.data.remote.models.*
+import kotlinx.coroutines.flow.firstOrNull
+import retrofit2.Response
 
 class PhysioRepository(
-    private val remote: RemoteDataSource
+    private val remote: RemoteDataSource,
+    private val sessionManager: SessionManager
 ) {
 
     // --- Autenticación ---
-    suspend fun login(login: String, password: String): ApiResponse<LoginResult> =
+    suspend fun login(login: String, password: String): LoginResponse =
         remote.login(login, password)
 
     suspend fun logout(token: String): ApiResponse<MessageResponse> =
@@ -31,6 +36,40 @@ class PhysioRepository(
     suspend fun getPatientDetail(token: String, patientId: String): ApiResponse<PatientDetailResponse> =
         remote.getPatientDetail(token, patientId)
 
+    suspend fun getAllPatients(): List<PatientItem> {
+        val token = sessionManager.getToken.firstOrNull() ?: throw Exception("Token inválido")
+        val response = remote.fetchAllPatients(token)
+        if (response.ok && response.result != null) {
+            return response.result
+        } else {
+            throw Exception(response.message ?: "Error al cargar pacientes")
+        }
+    }
+
+    suspend fun createAppointmentForPatient(
+        patientId: String,
+        date: String,
+        diagnosis: String,
+        treatment: String,
+        observations: String
+    ): ApiResponse<RecordItem> {
+        val token = sessionManager.getToken.firstOrNull() ?: throw Exception("Token inválido")
+        val physioId = sessionManager.sessionFlow.firstOrNull()?.userId ?: throw Exception("ID de physio no disponible")
+
+        val recordResponse = remote.getPatientDetail(token, patientId)
+        val recordId = recordResponse.result?.records?.firstOrNull()?._id
+            ?: throw Exception("No se encontró un expediente para este paciente")
+
+        val req = AppointmentRequest(
+            date = date,
+            diagnosis = diagnosis,
+            treatment = treatment,
+            observations = observations,
+            physio = physioId
+        )
+
+        return remote.addAppointment(token, patientId, req)
+    }
 
     suspend fun createPatient(
         token: String,
@@ -93,12 +132,8 @@ class PhysioRepository(
     ): ApiResponse<RecordItem> =
         remote.createRecord(token, record)
 
-    suspend fun addAppointment(
-        token: String,
-        recordId: String,
-        request: AppointmentRequest
-    ): ApiResponse<RecordItem> =
-        remote.addAppointment(token, recordId, request)
+    suspend fun addAppointment(token: String, recordId: String, req: AppointmentRequest) =
+        remote.addAppointment(token, recordId, req)
 
     suspend fun getAppointmentDetail(token: String, appointmentId: String)
             = remote.getAppointmentDetail(token, appointmentId)
@@ -109,4 +144,11 @@ class PhysioRepository(
     /** Sólo para admin/physio: todas las citas */
     suspend fun getAllAppointments(token: String)
             = remote.getAppointments(token)
+
+    suspend fun getMyAppointmentsAsPhysio(): ApiResponse<List<AppointmentFlat>> {
+        val token = sessionManager.getToken.firstOrNull() ?: throw Exception("Token inválido")
+        val physioId = sessionManager.sessionFlow.firstOrNull()?.userId ?: throw Exception("ID no disponible")
+        return remote.getAppointmentsByPhysio(token, physioId)
+    }
+
 }

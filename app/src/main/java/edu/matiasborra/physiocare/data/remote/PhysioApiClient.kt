@@ -4,6 +4,7 @@ import edu.matiasborra.physiocare.auth.LoginResponse
 import edu.matiasborra.physiocare.data.remote.models.*
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.OkHttpClient
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.*
 import retrofit2.converter.gson.GsonConverterFactory
@@ -48,7 +49,7 @@ class PhysioApiClient {
  */
 interface PhysioApiService {
     @POST("auth/login")
-    suspend fun login(@Body creds: LoginRequest): LoginResponse
+    suspend fun login(@Body request: LoginRequest): LoginResponse
 
     @GET("auth/logout")
     suspend fun logout(@Header("Authorization") token: String): ApiResponse<MessageResponse>
@@ -72,8 +73,8 @@ interface PhysioApiService {
     /** Devuelve paciente + sus records */
     @GET("patients/{id}")
     suspend fun getPatientDetail(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
+        @Header("Authorization") auth: String,
+        @Path("id") patientId: String
     ): ApiResponse<PatientDetailResponse>
 
     @POST("patients")
@@ -141,13 +142,14 @@ interface PhysioApiService {
         @Path("id") id: String
     ): ApiResponse<RecordItem>
 
+
     @POST("records")
     suspend fun createRecord(
         @Header("Authorization") token: String,
         @Body newRecord: RecordItem
     ): ApiResponse<RecordItem>
 
-    @POST("records/{id}/appointments")
+    @POST("records/patients/{id}/appointments")
     suspend fun addAppointment(
         @Header("Authorization") token: String,
         @Path("id") recordId: String,
@@ -160,4 +162,10 @@ interface PhysioApiService {
         @Header("Authorization") token: String,
         @Path("id") id: String
     ): ApiResponse<AppointmentItem>
+
+    @GET("records/physio/{id}/appointments")
+    suspend fun getAppointmentsByPhysio(
+        @Header("Authorization") token: String,
+        @Path("id") physioId: String
+    ): ApiResponse<List<AppointmentFlat>>
 }

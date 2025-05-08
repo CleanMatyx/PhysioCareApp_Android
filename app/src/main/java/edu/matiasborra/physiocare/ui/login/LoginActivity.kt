@@ -30,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
                 return LoginViewModel(
-                    repo = PhysioRepository(RemoteDataSource()),
+                    repo = PhysioRepository(RemoteDataSource(), session),
                     session = session
                 ) as T
             }

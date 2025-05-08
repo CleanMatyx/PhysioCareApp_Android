@@ -10,13 +10,14 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.ApiRestCoffee"
         android:windowSoftInputMode="adjustResize|stateAlwaysVisible"
-        tools:targetApi="31">
+        tools:targetApi="33">
         <activity
             android:name=".ui.main.patients.detail.PatientDetailActivity"
             android:exported="false" />

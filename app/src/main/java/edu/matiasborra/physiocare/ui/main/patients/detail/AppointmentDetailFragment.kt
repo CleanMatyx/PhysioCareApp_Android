@@ -1,73 +1,66 @@
-// File: AppointmentDetailFragment.kt
 package edu.matiasborra.physiocare.ui.main.patients.detail
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.fragment.app.commit
-import com.bumptech.glide.Glide
-import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.databinding.FragmentAppointmentDetailBinding
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
+import edu.matiasborra.physiocare.data.remote.models.AppointmentFlat
+import java.text.SimpleDateFormat
+import java.util.*
 
-class AppointmentDetailFragment
-    : Fragment(R.layout.fragment_appointment_detail) {
-
-    companion object {
-        private const val ARG_APPT_ID = "appt_id"
-        fun newInstance(id: String) = AppointmentDetailFragment().apply {
-            arguments = Bundle().apply { putString(ARG_APPT_ID, id) }
-        }
-    }
+class AppointmentDetailFragment : Fragment() {
 
     private var _binding: FragmentAppointmentDetailBinding? = null
-    private val b get() = _binding!!
-    private val app by lazy { requireActivity().application as PhysioApp }
-    private val repo by lazy { app.physioRepo }
+    private val binding get() = _binding!!
+    private var appointment: AppointmentFlat? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        appointment = arguments?.getSerializable("appointment") as? AppointmentFlat
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAppointmentDetailBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        _binding = FragmentAppointmentDetailBinding.bind(view)
+        super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            val token  = app.sessionManager.getToken.firstOrNull().orEmpty()
-            val apptId = arguments?.getString(ARG_APPT_ID).orEmpty()
+        appointment?.let {
+            val formattedDate = try {
+                val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                formatter.format(parser.parse(it.date) ?: it.date)
+            } catch (e: Exception) {
+                it.date
+            }
 
-            // ==> ahora sí existe este método
-            val resp = repo.getAppointmentDetail(token, apptId)
+            binding.tvDetailDate.text = formattedDate
+            binding.tvDetailPhysio.text = it.physioName
+            binding.tvDetailPatient.text = it.patientName
+            binding.tvDetailDiagnosis.text = it.diagnosis
+            binding.tvDetailTreatment.text = it.treatment
+            binding.tvDetailObservations.text = it.observations.ifBlank { "Ninguna" }
 
-            if (resp.ok && resp.result != null) {
-                val ap = resp.result
-
-                b.tvDate.text         = ap.date
-                b.tvDiagnosis.text    = ap.diagnosis
-                b.tvTreatment.text    = ap.treatment
-                b.tvObservations.text = ap.observations.orEmpty()
-
-                // physio ya es un objeto AppointmentPhysio
-                val physio = ap.physio
-                val physioName = if (physio != null) {
-                    "${physio.name} ${physio.surname}"
-                } else getString(R.string.none)
-
-                b.tvPhysioName.text = getString(
-                    R.string.appointment_physio, physioName
-                )
-
-                b.btnViewPhysio.setOnClickListener {
+            // Ver perfil fisio
+            val physioId = it.physioId
+            if (!physioId.isNullOrBlank()) {
+                binding.btnViewPhysio.setOnClickListener { _ ->
                     parentFragmentManager.commit {
-                        // usa el id real
-                        replace(
-                            R.id.nav_host_container,
-                            PhysioDetailFragment.newInstance(physio?._id.orEmpty())
-                        )
+                        replace(R.id.nav_host_container, PhysioDetailFragment.newInstance(physioId))
                         addToBackStack(null)
                     }
                 }
             } else {
-                // TODO: mostrar error en UI
+                binding.btnViewPhysio.isEnabled = false
             }
         }
     }

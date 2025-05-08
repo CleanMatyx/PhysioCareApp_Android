@@ -12,18 +12,6 @@ import kotlinx.coroutines.flow.map
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 /**
- * No delego el DataStore dentro de la clase para tener un SessionManager singleton y separar
- * la lógica de acceso a datos de la lógica de negocio.
- *
- * SessionManager(private val dataStore: DataStore<Preferences>) {
- *     companion object {
- *         private val TOKEN_KEY = stringPreferencesKey("token")
- *         private val USERNAME_KEY = stringPreferencesKey("username")
- *     }
- *
- */
-
-/**
  * Datos completos de la sesión de usuario.
  */
 data class SessionData(
@@ -40,10 +28,10 @@ data class SessionData(
 class SessionManager(private val dataStore: DataStore<Preferences>) {
 
     companion object {
-        private val TOKEN_KEY    = stringPreferencesKey("token")
+        private val TOKEN_KEY = stringPreferencesKey("token")
         private val USERNAME_KEY = stringPreferencesKey("username")
-        private val USER_ID_KEY  = stringPreferencesKey("user_id")
-        private val ROLE_KEY     = stringPreferencesKey("role")
+        private val USER_ID_KEY = stringPreferencesKey("user_id")
+        private val ROLE_KEY = stringPreferencesKey("role")
     }
 
     /**
@@ -51,10 +39,10 @@ class SessionManager(private val dataStore: DataStore<Preferences>) {
      */
     val sessionFlow: Flow<SessionData> = dataStore.data.map { prefs ->
         SessionData(
-            token    = prefs[TOKEN_KEY],
+            token = prefs[TOKEN_KEY],
             username = prefs[USERNAME_KEY],
-            userId   = prefs[USER_ID_KEY],
-            role     = prefs[ROLE_KEY]
+            userId = prefs[USER_ID_KEY],
+            role = prefs[ROLE_KEY]
         )
     }
 
@@ -88,17 +76,6 @@ class SessionManager(private val dataStore: DataStore<Preferences>) {
         }
     }
 
-    // Si necesitas accesos individuales, también están disponibles:
-
     /** Flujo del token únicamente */
     val getToken: Flow<String?> = dataStore.data.map { it[TOKEN_KEY] }
-
-    /** Flujo del nombre de usuario únicamente */
-    val getUsername: Flow<String?> = dataStore.data.map { it[USERNAME_KEY] }
-
-    /** Flujo del userId únicamente */
-    val getUserId: Flow<String?> = dataStore.data.map { it[USER_ID_KEY] }
-
-    /** Flujo del role únicamente */
-    val getRole: Flow<String?> = dataStore.data.map { it[ROLE_KEY] }
 }

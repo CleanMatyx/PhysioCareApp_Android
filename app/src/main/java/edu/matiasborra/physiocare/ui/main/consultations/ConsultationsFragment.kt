@@ -1,4 +1,3 @@
-// File: app/src/main/java/edu/matiasborra/physiocare/ui/main/consultations/ConsultationsFragment.kt
 package edu.matiasborra.physiocare.ui.main.consultations
 
 import android.os.Bundle
@@ -7,17 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.fragment.findNavController
 import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.data.remote.RemoteDataSource
+import edu.matiasborra.physiocare.data.remote.models.AppointmentFlat
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 import edu.matiasborra.physiocare.databinding.FragmentConsultationsBinding
+import edu.matiasborra.physiocare.ui.main.patients.detail.AppointmentDetailFragment
 import kotlinx.coroutines.launch
 
 class ConsultationsFragment : Fragment() {
+
     private var _binding: FragmentConsultationsBinding? = null
     private val binding get() = _binding!!
 
@@ -25,9 +29,9 @@ class ConsultationsFragment : Fragment() {
         ConsultationsViewModelFactory(requireActivity().application as PhysioApp)
     }
 
-    private lateinit var physioAdapter  : ConsultationAdapter
-    private lateinit var pendingAdapter : AppointmentItemAdapter
-    private lateinit var historyAdapter : AppointmentItemAdapter
+    private lateinit var physioAdapter: ConsultationAdapter
+    private lateinit var pendingAdapter: ConsultationAdapter
+    private lateinit var historyAdapter: ConsultationAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,9 +40,9 @@ class ConsultationsFragment : Fragment() {
     ): View {
         _binding = FragmentConsultationsBinding.inflate(inflater, container, false)
 
-        physioAdapter  = ConsultationAdapter()
-        pendingAdapter = AppointmentItemAdapter()
-        historyAdapter = AppointmentItemAdapter()
+        physioAdapter = ConsultationAdapter { appointment -> openAppointmentDetail(appointment) }
+        pendingAdapter = ConsultationAdapter { appointment -> openAppointmentDetail(appointment) }
+        historyAdapter = ConsultationAdapter { appointment -> openAppointmentDetail(appointment) }
 
         binding.rvAllConsultations.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -61,61 +65,69 @@ class ConsultationsFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
-                //  Reset UI
-                binding.apply {
-                    rvAllConsultations.isVisible    = false
-                    tvPendingTitle.isVisible         = false
-                    rvPending.isVisible              = false
-                    tvHistoryTitle.isVisible         = false
-                    rvHistory.isVisible              = false
-                    tvLoadingConsultations.isVisible = false
-                }
+                // Ocultar todo por defecto
+                binding.rvAllConsultations.isVisible = false
+                binding.tvPendingTitle.isVisible = false
+                binding.rvPending.isVisible = false
+                binding.tvHistoryTitle.isVisible = false
+                binding.rvHistory.isVisible = false
+                binding.tvLoadingConsultations.isVisible = false
+                binding.fabAddAppointment.isVisible = false
 
                 when (state) {
                     is ConsultationsUiState.Loading -> {
-                        binding.tvLoadingConsultations.apply {
-                            isVisible = true
-                            text = getString(R.string.loading)
-                        }
+                        binding.tvLoadingConsultations.isVisible = true
+                        binding.tvLoadingConsultations.text = getString(R.string.loading)
                     }
                     is ConsultationsUiState.SuccessPhysio -> {
                         binding.rvAllConsultations.isVisible = true
+                        binding.fabAddAppointment.isVisible = true
                         physioAdapter.submitList(state.all)
                     }
                     is ConsultationsUiState.SuccessPatient -> {
                         binding.tvPendingTitle.isVisible = true
-                        binding.rvPending.isVisible      = true
+                        binding.rvPending.isVisible = true
                         pendingAdapter.submitList(state.pending)
 
                         binding.tvHistoryTitle.isVisible = true
-                        binding.rvHistory.isVisible      = true
+                        binding.rvHistory.isVisible = true
                         historyAdapter.submitList(state.history)
                     }
                     is ConsultationsUiState.Error -> {
-                        binding.tvLoadingConsultations.apply {
-                            isVisible = true
-                            text = state.message
-                        }
+                        binding.tvLoadingConsultations.isVisible = true
+                        binding.tvLoadingConsultations.text = state.message
                     }
                 }
+            }
+        }
+
+        binding.fabAddAppointment.setOnClickListener {
+            parentFragmentManager.commit {
+                replace(R.id.nav_host_container, CreateAppointmentFragment())
+                addToBackStack(null)
             }
         }
 
         viewModel.loadConsultations()
     }
 
+    private fun openAppointmentDetail(appointment: AppointmentFlat) {
+        val bundle = Bundle().apply {
+            putSerializable("appointment", appointment)
+        }
+        val detailFragment = AppointmentDetailFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable("appointment", appointment)
+            }
+        }
+        parentFragmentManager.commit {
+            replace(R.id.nav_host_container, detailFragment)
+            addToBackStack(null)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-}
-
-@Suppress("UNCHECKED_CAST")
-class ConsultationsViewModelFactory(app: PhysioApp) : androidx.lifecycle.ViewModelProvider.Factory {
-    private val repo    = PhysioRepository(RemoteDataSource())
-    private val session = app.sessionManager
-
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        return ConsultationsViewModel(repo, session) as T
     }
 }

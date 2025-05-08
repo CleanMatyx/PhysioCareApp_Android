@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.matiasborra.physiocare.auth.SessionManager
 import edu.matiasborra.physiocare.data.remote.models.AppointmentFlat
-import edu.matiasborra.physiocare.data.remote.models.AppointmentItem
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,16 +14,11 @@ import java.time.format.DateTimeFormatter
 
 sealed class ConsultationsUiState {
     object Loading : ConsultationsUiState()
-
-    /** Para fisioterapeuta/admin: lista plana de AppointmentFlat */
     data class SuccessPhysio(val all: List<AppointmentFlat>) : ConsultationsUiState()
-
-    /** Para patient: citas pendientes e histórico, usando AppointmentItem */
     data class SuccessPatient(
-        val pending: List<AppointmentItem>,
-        val history: List<AppointmentItem>
+        val pending: List<AppointmentFlat>,
+        val history: List<AppointmentFlat>
     ) : ConsultationsUiState()
-
     data class Error(val message: String) : ConsultationsUiState()
 }
 
@@ -40,34 +34,25 @@ class ConsultationsViewModel(
         viewModelScope.launch {
             _uiState.value = ConsultationsUiState.Loading
 
-            val sd     = session.sessionFlow.firstOrNull()
-            val token  = sd?.token.orEmpty()
-            val role   = sd?.role.orEmpty()
+            val sd = session.sessionFlow.firstOrNull()
+            val token = sd?.token.orEmpty()
+            val role = sd?.role.orEmpty()
             val userId = sd?.userId.orEmpty()
 
             try {
                 if (role == "patient") {
-                    // 1) traigo su record
-                    val recordResp = repo.getRecord(token, userId)
-                    if (!recordResp.ok || recordResp.result == null) {
-                        throw Exception(recordResp.message ?: "No tiene expediente")
+                    val resp = repo.getMyAppointments(token, userId)
+                    if (!resp.ok || resp.result == null) {
+                        throw Exception(resp.message ?: "No tienes citas programadas")
                     }
-                    val allApps = recordResp.result.appointments  // List<AppointmentItem>
-
-                    // 2) separo pendientes / histórico
+                    val apps = resp.result
                     val now = ZonedDateTime.now()
                     val fmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                    val pending = allApps.filter {
-                        ZonedDateTime.parse(it.date, fmt).isAfter(now)
-                    }
-                    val history = allApps.filter {
-                        !ZonedDateTime.parse(it.date, fmt).isAfter(now)
-                    }
-
+                    val pending = apps.filter { ZonedDateTime.parse(it.date, fmt).isAfter(now) }
+                    val history = apps.filter { !ZonedDateTime.parse(it.date, fmt).isAfter(now) }
                     _uiState.value = ConsultationsUiState.SuccessPatient(pending, history)
                 } else {
-                    // admin/physio: traigo las “flat”
-                    val resp = repo.getAppointments(token)
+                    val resp = repo.getMyAppointmentsAsPhysio()
                     if (!resp.ok || resp.result == null) {
                         throw Exception(resp.message ?: "Error al cargar citas")
                     }
@@ -78,4 +63,16 @@ class ConsultationsViewModel(
             }
         }
     }
+
+//    fun loadConsultations() {
+//        viewModelScope.launch {
+//            _uiState.value = ConsultationsUiState.Loading
+//            val result = repo.getMyAppointmentsAsPhysio()
+//            if (result.ok && result.result != null) {
+//                _uiState.value = ConsultationsUiState.SuccessPhysio(result.result)
+//            } else {
+//                _uiState.value = ConsultationsUiState.Error(result.message ?: "Error cargando citas")
+//            }
+//        }
+//    }
 }

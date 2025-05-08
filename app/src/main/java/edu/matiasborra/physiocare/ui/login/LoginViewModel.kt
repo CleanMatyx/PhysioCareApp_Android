@@ -1,5 +1,7 @@
+// File: app/src/main/java/edu/matiasborra/physiocare/ui/login/LoginViewModel.kt
 package edu.matiasborra.physiocare.ui.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.auth0.android.jwt.JWT
@@ -10,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 sealed class LoginUiState {
-    object Idle : LoginUiState()
+    object Idle    : LoginUiState()
     object Loading : LoginUiState()
     object Success : LoginUiState()
     data class Error(val message: String) : LoginUiState()
@@ -34,24 +36,22 @@ class LoginViewModel(
             _uiState.value = LoginUiState.Loading
             try {
                 val resp = repo.login(username, password)
-                if (resp.ok && resp.result != null) {
-                    val token = resp.result.token
-
-                    val jwt = JWT(token)
-                    val userId = jwt.getClaim("id").asString().orEmpty()
-                    val login = jwt.getClaim("login").asString().orEmpty()
-                    val rol = jwt.getClaim("rol").asString().orEmpty()
-
-                    session.saveSession(
-                        token = token,
-                        username = login.ifBlank { username },
-                        userId = userId,
-                        role = rol
-                    )
-
+                if (resp.ok) {
+                    val token = resp.token ?: ""
+                    val userId = resp.userId ?: ""
+                    val rol = resp.rol ?: ""
+                    val username = resp.login ?: ""
+                    session.saveSession(token, username, userId, rol)
                     _uiState.value = LoginUiState.Success
+                    Log.d("LoginViewModel", "Login exitoso")
+                    Log.d("LoginViewModel", "Token: $token")
+                    Log.d("LoginViewModel", "UserId: $userId")
+                    Log.d("LoginViewModel", "Rol: $rol")
+                    Log.d("LoginViewModel", "Username: $username")
                 } else {
-                    _uiState.value = LoginUiState.Error(resp.message ?: "Login fallido")
+                    _uiState.value = LoginUiState.Error(resp.error ?: "Login fallido")
+                    Log.d("LoginViewModel", "Login fallido")
+                    Log.d("LoginViewModel", "Error: ${resp.error}")
                 }
             } catch (e: Exception) {
                 _uiState.value = LoginUiState.Error(e.localizedMessage ?: "Error de red")

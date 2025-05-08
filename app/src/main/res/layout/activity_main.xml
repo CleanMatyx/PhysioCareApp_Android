@@ -7,43 +7,48 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <!-- AppBar con Toolbar y tu TextView de usuario -->
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- Fondo que cubre toda la pantalla -->
+    <ImageView
+        android:id="@+id/bgMain"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:src="@drawable/physio_background"
+        android:scaleType="centerCrop"
+        android:alpha="0.9" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+    <!-- Contenedor general con AppBar, contenido y BottomNav encima del fondo -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- AppBar -->
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="PhysioCare" />
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tvUserInfo"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:title="PhysioCare" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <!-- Contenedor del fragmento -->
+        <FrameLayout
+            android:id="@+id/nav_host_container"
             android:layout_width="match_parent"
-            android:layout_height="11dp"
-            android:padding="16dp"
-            android:textAppearance="?attr/textAppearanceBody2"
-            android:textColor="?attr/colorOnPrimary"
-            android:visibility="gone" />
-    </com.google.android.material.appbar.AppBarLayout>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- Contenedor de fragments: se extiende
-         * desde debajo de la AppBar
-         * hasta justo encima del BottomNav -->
-    <FrameLayout
-        android:id="@+id/nav_host_container"
-        android:layout_width="match_parent"
-        android:layout_height="586dp"
-        android:layout_marginBottom="56dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <!-- BottomNavigationView anclada abajo -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNav"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:menu="@menu/menu_main_bottom" />
+        <!-- Menú inferior -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/menu_main_bottom" />
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

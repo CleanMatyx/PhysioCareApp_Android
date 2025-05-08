@@ -8,4 +8,5 @@
     <color name="coffee_text_primary">#3E2723</color>
     <color name="coffee_text_secondary">#5D4037</color>
     <color name="coffee_text_hint">#8D6E63</color>
+    <color name="purple_500">#6200EE</color>
 </resources>

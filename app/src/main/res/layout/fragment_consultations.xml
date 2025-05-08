@@ -1,76 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scroll"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:padding="16dp"
-    android:clipToPadding="false"
-    android:paddingBottom="72dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<LinearLayout
-android:orientation="vertical"
-android:layout_width="match_parent"
-android:layout_height="wrap_content">
 
-<!-- Título general -->
-<TextView
-    android:id="@+id/tvConsultationsTitle"
-    style="?attr/textAppearanceHeadline6"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/consultations_title"
-    android:paddingBottom="16dp"/>
+    <!-- Contenido desplazable -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="16dp"
+        android:clipToPadding="false">
 
-<!-- Sólo para physio/admin -->
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/rvAllConsultations"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:visibility="gone"
-    android:nestedScrollingEnabled="false"/>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-<!-- Sólo para patient: sección pendientes -->
-<TextView
-    android:id="@+id/tvPendingTitle"
-    style="?attr/textAppearanceSubtitle1"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/consultations_pending"
-    android:visibility="gone"
-    android:paddingTop="16dp"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAllConsultations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone" />
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/rvPending"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:visibility="gone"
-    android:nestedScrollingEnabled="false"/>
+            <TextView
+                android:id="@+id/tvPendingTitle"
+                style="?attr/textAppearanceSubtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:text="@string/consultations_pending"
+                android:visibility="gone" />
 
-<!-- Sólo para patient: sección histórico -->
-<TextView
-    android:id="@+id/tvHistoryTitle"
-    style="?attr/textAppearanceSubtitle1"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/consultations_history"
-    android:visibility="gone"
-    android:paddingTop="16dp"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPending"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone" />
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/rvHistory"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:visibility="gone"
-    android:nestedScrollingEnabled="false"/>
+            <TextView
+                android:id="@+id/tvHistoryTitle"
+                style="?attr/textAppearanceSubtitle1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:text="@string/consultations_history"
+                android:visibility="gone" />
 
-<!-- Mensaje de loading / error -->
-<TextView
-    android:id="@+id/tvLoadingConsultations"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="24dp"
-    android:gravity="center"/>
-</LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvLoadingConsultations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="24dp"
+                android:visibility="gone" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAddAppointment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_add_appointment_icon"
+                android:visibility="gone"
+                app:backgroundTint="@color/purple_500" />
+        </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
+
+</FrameLayout>

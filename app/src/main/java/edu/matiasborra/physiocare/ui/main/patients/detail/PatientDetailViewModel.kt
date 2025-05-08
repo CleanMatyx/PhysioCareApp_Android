@@ -1,13 +1,13 @@
-// File: app/src/main/java/edu/matiasborra/physiocare/ui/main/patients/detail/PatientDetailViewModel.kt
+// File: PatientDetailViewModel.kt
 package edu.matiasborra.physiocare.ui.main.patients.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import edu.matiasborra.physiocare.auth.SessionManager
-import edu.matiasborra.physiocare.data.remote.models.AppointmentItem
-import edu.matiasborra.physiocare.data.remote.models.PatientItem
 import edu.matiasborra.physiocare.data.remote.models.PatientDetailResponse
+import edu.matiasborra.physiocare.data.remote.models.PatientItem
+import edu.matiasborra.physiocare.data.remote.models.RecordItem
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +18,7 @@ sealed class PatientDetailUiState {
     object Loading : PatientDetailUiState()
     data class Success(
         val patient: PatientItem,
-        val medicalRecord: String?,
-        val appointments: List<AppointmentItem>
+        val records: List<RecordItem>
     ) : PatientDetailUiState()
     data class Error(val message: String) : PatientDetailUiState()
 }
@@ -30,33 +29,29 @@ class PatientDetailViewModel(
     private val patientId: String
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<PatientDetailUiState>(PatientDetailUiState.Loading)
+    private val _uiState =
+        MutableStateFlow<PatientDetailUiState>(PatientDetailUiState.Loading)
     val uiState: StateFlow<PatientDetailUiState> = _uiState
 
     fun loadPatientAndRecords() {
         viewModelScope.launch {
             _uiState.value = PatientDetailUiState.Loading
-            val sd    = session.sessionFlow.firstOrNull()
-            val token = sd?.token.orEmpty()
+            val token = session.getToken.firstOrNull().orEmpty()
             try {
-                val resp = repo.getPatientDetail("Bearer $token", patientId)
-                if (!resp.ok || resp.result == null) {
-                    throw Exception(resp.message ?: "Error al cargar datos de paciente")
+                // aquí uso tu nuevo endpoint /patients/{id}
+                val detailResp = repo.getPatientDetail(token, patientId)
+                if (detailResp.ok && detailResp.result != null) {
+                    val result: PatientDetailResponse = detailResp.result
+                    _uiState.value = PatientDetailUiState.Success(
+                        patient = result.patient,
+                        records = result.records
+                    )
+                } else {
+                    throw Exception(detailResp.message ?: "Error cargando detalle")
                 }
-                val pd: PatientDetailResponse = resp.result
-                // aplanamos todas las citas de todos los registros
-                val allAppts = pd.records
-                    .flatMap { it.appointments }
-                // opcional: ordenar por fecha, etc.
-                // usamos el primer record solo para el campo medicalRecord
-                val recordText = pd.records.firstOrNull()?.medicalRecord
-                _uiState.value = PatientDetailUiState.Success(
-                    patient       = pd.patient,
-                    medicalRecord = recordText,
-                    appointments  = allAppts
-                )
             } catch (e: Exception) {
-                _uiState.value = PatientDetailUiState.Error(e.localizedMessage ?: "Error inesperado")
+                _uiState.value =
+                    PatientDetailUiState.Error(e.localizedMessage ?: "Error inesperado")
             }
         }
     }
