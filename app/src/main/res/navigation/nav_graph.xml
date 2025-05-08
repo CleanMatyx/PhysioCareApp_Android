@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/appointmentDetailFragment">
+
+    <fragment
+        android:id="@+id/appointmentDetailFragment"
+        android:name="edu.matiasborra.physiocare.ui.main.patients.detail.AppointmentDetailFragment"
+        android:label="AppointmentDetailFragment" />
+</navigation>

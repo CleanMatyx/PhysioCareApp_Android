@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Título dinámico -->
+        <!-- Título -->
         <TextView
             android:id="@+id/tvTitle"
             style="?attr/textAppearanceHeadline6"
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"/>
 
-        <!-- DATOS BÁSICOS (siempre visibles) -->
+        <!-- DATOS BÁSICOS -->
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
@@ -46,20 +46,34 @@
             android:layout_height="wrap_content"
             android:paddingTop="4dp"/>
 
-        <!-- Contenedor de citas -->
+        <!-- HISTORIAL MÉDICO -->
+        <TextView
+            android:id="@+id/tvMedicalRecordTitle"
+            style="?attr/textAppearanceSubtitle1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/medical_record"
+            android:paddingTop="16dp"/>
+        <TextView
+            android:id="@+id/tvMedicalRecord"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"/>
+
+        <!-- BLOQUE DE CITAS (solo para physio/admin) -->
         <LinearLayout
             android:id="@+id/containerAppointments"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp">
 
             <TextView
                 android:id="@+id/tvAppointmentsTitle"
                 style="?attr/textAppearanceSubtitle1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/appointments_title"
-                android:paddingTop="16dp"/>
+                android:text="@string/your_appointments"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvAppointments"

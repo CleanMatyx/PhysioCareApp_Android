@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import com.auth0.android.jwt.JWT
 import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.auth.SessionManager

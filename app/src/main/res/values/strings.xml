@@ -23,5 +23,13 @@
     <string name="consultation_diagnosis">Diagnóstico: %1$s</string>
     <string name="consultation_treatment">Tratamiento: %1$s</string>
     <string name="consultation_observations">Observaciones: %1$s</string>
-
+    <string name="medical_record">Historial médico:</string>
+    <string name="your_appointments">Tus citas:</string>
+    <string name="physio_image">Imagen de fisioterapeuta</string>
+    <string name="physio_specialty">Especialidad: %1$s</string>
+    <string name="physio_license">Colegiado: %1$s</string>
+    <string name="view_physio_profile">Ver perfil del fisioterapeuta</string>
+    <string name="consultations_pending">Consultas pendientes</string>
+    <string name="consultations_history">Histórico de consultas</string>
+    <string name="consultations_title_physio">Todas las consultas</string>
 </resources>

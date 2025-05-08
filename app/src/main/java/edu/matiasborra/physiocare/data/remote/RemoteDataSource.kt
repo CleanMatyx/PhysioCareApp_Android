@@ -40,9 +40,12 @@ class RemoteDataSource {
     suspend fun fetchPatientById(token: String, id: String): ApiResponse<PatientItem> =
         api.getPatient("Bearer $token", id)
 
-    suspend fun getPatientDetail(token: String, id: String): ApiResponse<PatientDetailResponse> {
-        return api.getPatientDetail("Bearer $token", id)
+    /** Trae paciente + records en un sólo call */
+    suspend fun getPatientDetail(token: String, patientId: String)
+            : ApiResponse<PatientDetailResponse> {
+        return api.getPatientDetail("Bearer $token", patientId)
     }
+
 
     suspend fun createPatient(
         token: String,
@@ -111,4 +114,50 @@ class RemoteDataSource {
         newApp: AppointmentRequest
     ): ApiResponse<RecordItem> =
         api.addAppointment("Bearer $token", recordId, newApp)
+
+    /** Trae detalle de cita por su id */
+    suspend fun getAppointmentDetail(token: String, appointmentId: String)
+            : ApiResponse<AppointmentItem> {
+        return api.getAppointmentDetail("Bearer $token", appointmentId)
+    }
+
+    /**
+     * Para pacientes: extrae sólo sus citas de dentro de PatientDetailResponse.
+     */
+    suspend fun getMyAppointments(
+        token: String,
+        patientId: String
+    ): ApiResponse<List<AppointmentFlat>> {
+        val resp = api.getPatientDetail("Bearer $token", patientId)
+        return if (resp.ok && resp.result != null) {
+            // aplanamos todas las citas de todos los records
+            val allApps = resp.result.records
+                .flatMap { it.appointments }
+                .map { app ->
+                    AppointmentFlat(
+                        patientName = "${resp.result.patient.name} ${resp.result.patient.surname}",
+                        physioName  = app.physio
+                            ?.let { "${it.name} ${it.surname}" }
+                            .orEmpty(),
+                        date        = app.date,
+                        diagnosis   = app.diagnosis,
+                        treatment   = app.treatment,
+                        observations= app.observations
+                    )
+                }
+            ApiResponse(ok = true, result = allApps, message = null)
+        } else {
+            ApiResponse(ok = false, result = null, message = resp.message)
+        }
+    }
+
+    /** Para admin/physio: trae todas las citas de todos los pacientes */
+    suspend fun getAppointments(token: String): ApiResponse<List<AppointmentFlat>> {
+        val resp = api.getAppointments("Bearer $token")
+        return if (resp.ok && resp.result != null) {
+            ApiResponse(ok = true, result = resp.result, message = null)
+        } else {
+            ApiResponse(ok = false, result = null, message = resp.message)
+        }
+    }
 }

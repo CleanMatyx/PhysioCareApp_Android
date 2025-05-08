@@ -21,6 +21,11 @@ data class PatientItem(
     val image: String?
 )
 
+data class PatientDetailResponse(
+    val patient: PatientItem,
+    val records: List<RecordItem>
+)
+
 data class PhysioItem(
     val _id: String,
     val name: String,
@@ -31,13 +36,28 @@ data class PhysioItem(
     val image: String?
 )
 
+//data class AppointmentItem(
+//    val date: String,
+//    val physio: PhysioBrief?,
+//    val diagnosis: String,
+//    val treatment: String,
+//    val observations: String?,
+//    val _id: String
+//)
+
 data class AppointmentItem(
+    val _id: String,                // añade el id de la cita
     val date: String,
-    val physio: PhysioBrief?,
+    val physio: AppointmentPhysio?, // antes era String, ahora este objeto
     val diagnosis: String,
     val treatment: String,
-    val observations: String?,
-    val _id: String
+    val observations: String?
+)
+
+data class AppointmentPhysio(
+    val _id: String,
+    val name: String,
+    val surname: String
 )
 
 data class RecordItem(
@@ -62,4 +82,10 @@ data class AppointmentRequest(
     val diagnosis: String,
     val treatment: String,
     val observations: String?
+)
+
+data class PhysioBrief(
+    val _id: String,
+    val name: String,
+    val surname: String
 )

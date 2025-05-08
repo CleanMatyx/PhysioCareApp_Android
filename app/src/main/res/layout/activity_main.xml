@@ -2,10 +2,12 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <!-- AppBar con Toolbar -->
+    <!-- AppBar con Toolbar y tu TextView de usuario -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -14,33 +16,34 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="PhysioCare"/>
+            app:title="PhysioCare" />
 
         <TextView
             android:id="@+id/tvUserInfo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="11dp"
             android:padding="16dp"
             android:textAppearance="?attr/textAppearanceBody2"
             android:textColor="?attr/colorOnPrimary"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Contenedor de fragmentos -->
+    <!-- Contenedor de fragments: se extiende
+         * desde debajo de la AppBar
+         * hasta justo encima del BottomNav -->
     <FrameLayout
         android:id="@+id/nav_host_container"
         android:layout_width="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="586dp"
         android:layout_marginBottom="56dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- BottomNavigation para cambiar entre pantallas -->
+    <!-- BottomNavigationView anclada abajo -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:menu="@menu/menu_main_bottom"/>
+        app:menu="@menu/menu_main_bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

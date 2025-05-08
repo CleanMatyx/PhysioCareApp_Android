@@ -69,6 +69,7 @@ interface PhysioApiService {
         @Path("id") id: String
     ): ApiResponse<PatientItem>
 
+    /** Devuelve paciente + sus records */
     @GET("patients/{id}")
     suspend fun getPatientDetail(
         @Header("Authorization") token: String,
@@ -152,4 +153,11 @@ interface PhysioApiService {
         @Path("id") recordId: String,
         @Body newApp: AppointmentRequest
     ): ApiResponse<RecordItem>
+
+    /** Detalle de una cita concreta (con physio anidado) */
+    @GET("records/appointments/{id}")
+    suspend fun getAppointmentDetail(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): ApiResponse<AppointmentItem>
 }

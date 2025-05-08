@@ -1,3 +1,4 @@
+// File: app/src/main/java/edu/matiasborra/physiocare/ui/main/patients/detail/PatientDetailFragment.kt
 package edu.matiasborra.physiocare.ui.main.patients.detail
 
 import android.os.Bundle
@@ -25,81 +26,82 @@ class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
     private var _binding: FragmentPatientDetailBinding? = null
     private val binding get() = _binding!!
     private val app by lazy { requireActivity().application as PhysioApp }
+
     private val viewModel by viewModels<PatientDetailViewModel> {
         PatientDetailViewModel.Factory(
-            app,
-            arguments?.getString(ARG_PATIENT_ID).orEmpty()
+            repo    = app.physioRepo,
+            session = app.sessionManager,
+            patientId = arguments?.getString(ARG_PATIENT_ID).orEmpty()
         )
     }
 
-    private lateinit var appointmentAdapter: AppointmentAdapter
-    private var userRole: String = ""
-    private var username: String = ""
+    private val appointmentAdapter = AppointmentAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentPatientDetailBinding.bind(view)
 
-        // 1) Preparamos RecyclerView de citas
-        appointmentAdapter = AppointmentAdapter()
+        // 1) RecyclerView de citas
         binding.rvAppointments.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = appointmentAdapter
         }
 
-        // 2) Leemos sesión para saber rol y nombre de usuario
-        viewLifecycleOwner.lifecycleScope.launch {
+        // 2) Ajusta título y visibilidad según rol
+        lifecycleScope.launch {
             val sd = app.sessionManager.sessionFlow.firstOrNull()
-            sd?.let {
-                username = it.username.orEmpty()
-                userRole = it.role.orEmpty()
-            }
-
-            // 3) Ponemos el título según rol:
-            if (userRole == "patient") {
+            val role = sd?.role.orEmpty()
+            val username = sd?.username.orEmpty()
+            if (role == "patient") {
                 binding.tvTitle.text = getString(R.string.perfil_de, username)
             } else {
                 binding.tvTitle.text = getString(
                     R.string.patient_name_format,
-                    arguments?.getString(ARG_PATIENT_ID).orEmpty(), ""
+                    arguments?.getString(ARG_PATIENT_ID).orEmpty(),
+                    ""
                 )
             }
-
-            // 4) Ocultamos TODO el bloque de citas si es patient
-            binding.containerAppointments.isVisible = (userRole != "patient")
-
-            // 5) Cargamos datos
-            viewModel.loadPatientAndRecords()
+            binding.containerAppointments.isVisible = (role != "patient")
         }
 
-        // 6) Observamos estado
-        viewLifecycleOwner.lifecycleScope.launch {
+        // 3) Observa estado
+        lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 when (state) {
-                    is PatientDetailUiState.Loading -> { /* mostrar loader si quieres */ }
+                    is PatientDetailUiState.Loading -> {
+                        // opcional: show loader
+                    }
                     is PatientDetailUiState.Success -> {
-                        val p = state.patient
-                        // rellenamos datos básicos
+                        // datos básicos
                         binding.tvName.text = getString(
-                            R.string.patient_name_format, p.name, p.surname
+                            R.string.patient_name_format,
+                            state.patient.name,
+                            state.patient.surname
                         )
                         binding.tvBirth.text = getString(
-                            R.string.patient_birth_format, p.birthDate
+                            R.string.patient_birth_format,
+                            state.patient.birthDate
                         )
-                        binding.tvAddress.text   = p.address
-                        binding.tvInsurance.text = p.insuranceNumber
-                        binding.tvEmail.text     = p.email
+                        binding.tvAddress.text   = state.patient.address
+                        binding.tvInsurance.text = state.patient.insuranceNumber
+                        binding.tvEmail.text     = state.patient.email
 
-                        // rellenamos citas solo si está visible el contenedor
+                        // expediente
+                        binding.tvMedicalRecord.text = state.medicalRecord
+
+                        // citas (solo si está visible el contenedor)
                         if (binding.containerAppointments.isVisible) {
                             appointmentAdapter.submitList(state.appointments)
                         }
                     }
                     is PatientDetailUiState.Error -> {
-                        /* mostrar mensaje de error */
+                        binding.tvMedicalRecord.text = state.message
                     }
                 }
             }
         }
+
+        // 4) Dispara carga
+        viewModel.loadPatientAndRecords()
     }
 
     override fun onDestroyView() {

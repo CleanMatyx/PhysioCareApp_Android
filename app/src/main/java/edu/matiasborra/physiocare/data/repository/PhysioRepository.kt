@@ -28,8 +28,8 @@ class PhysioRepository(
     suspend fun getPatient(token: String, id: String): ApiResponse<PatientItem> =
         remote.fetchPatientById(token, id)
 
-    suspend fun getPatientDetail(token: String, id: String): ApiResponse<PatientDetailResponse> =
-        remote.getPatientDetail(token, id)
+    suspend fun getPatientDetail(token: String, patientId: String): ApiResponse<PatientDetailResponse> =
+        remote.getPatientDetail(token, patientId)
 
 
     suspend fun createPatient(
@@ -99,4 +99,14 @@ class PhysioRepository(
         request: AppointmentRequest
     ): ApiResponse<RecordItem> =
         remote.addAppointment(token, recordId, request)
+
+    suspend fun getAppointmentDetail(token: String, appointmentId: String)
+            = remote.getAppointmentDetail(token, appointmentId)
+
+    suspend fun getMyAppointments(token: String, patientId: String)
+            = remote.getMyAppointments(token, patientId)
+
+    /** Sólo para admin/physio: todas las citas */
+    suspend fun getAllAppointments(token: String)
+            = remote.getAppointments(token)
 }

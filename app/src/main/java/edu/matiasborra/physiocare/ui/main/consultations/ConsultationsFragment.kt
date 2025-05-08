@@ -1,12 +1,13 @@
+// File: app/src/main/java/edu/matiasborra/physiocare/ui/main/consultations/ConsultationsFragment.kt
 package edu.matiasborra.physiocare.ui.main.consultations
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.matiasborra.physiocare.PhysioApp
@@ -14,52 +15,92 @@ import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.data.remote.RemoteDataSource
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 import edu.matiasborra.physiocare.databinding.FragmentConsultationsBinding
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class ConsultationsFragment : Fragment(R.layout.fragment_consultations) {
-
+class ConsultationsFragment : Fragment() {
     private var _binding: FragmentConsultationsBinding? = null
     private val binding get() = _binding!!
-    private val app by lazy { requireActivity().application as PhysioApp }
+
     private val viewModel by viewModels<ConsultationsViewModel> {
-        ConsultationsViewModelFactory(app)
+        ConsultationsViewModelFactory(requireActivity().application as PhysioApp)
     }
-    private lateinit var adapter: ConsultationAdapter
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        _binding = FragmentConsultationsBinding.bind(view)
+    private lateinit var physioAdapter  : ConsultationAdapter
+    private lateinit var pendingAdapter : AppointmentItemAdapter
+    private lateinit var historyAdapter : AppointmentItemAdapter
 
-        // 1) RecyclerView + adapter
-        adapter = ConsultationAdapter()
-        binding.rvConsultations.apply {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentConsultationsBinding.inflate(inflater, container, false)
+
+        physioAdapter  = ConsultationAdapter()
+        pendingAdapter = AppointmentItemAdapter()
+        historyAdapter = AppointmentItemAdapter()
+
+        binding.rvAllConsultations.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = this@ConsultationsFragment.adapter
+            adapter = physioAdapter
+        }
+        binding.rvPending.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = pendingAdapter
+        }
+        binding.rvHistory.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = historyAdapter
         }
 
-        // 2) Observamos UI state
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
+                //  Reset UI
+                binding.apply {
+                    rvAllConsultations.isVisible    = false
+                    tvPendingTitle.isVisible         = false
+                    rvPending.isVisible              = false
+                    tvHistoryTitle.isVisible         = false
+                    rvHistory.isVisible              = false
+                    tvLoadingConsultations.isVisible = false
+                }
+
                 when (state) {
                     is ConsultationsUiState.Loading -> {
-                        binding.tvLoadingConsultations.isVisible = true
-                        binding.rvConsultations.isVisible = false
+                        binding.tvLoadingConsultations.apply {
+                            isVisible = true
+                            text = getString(R.string.loading)
+                        }
                     }
-                    is ConsultationsUiState.Success -> {
-                        binding.tvLoadingConsultations.isVisible = false
-                        binding.rvConsultations.isVisible = true
-                        adapter.submitList(state.consultations)
+                    is ConsultationsUiState.SuccessPhysio -> {
+                        binding.rvAllConsultations.isVisible = true
+                        physioAdapter.submitList(state.all)
+                    }
+                    is ConsultationsUiState.SuccessPatient -> {
+                        binding.tvPendingTitle.isVisible = true
+                        binding.rvPending.isVisible      = true
+                        pendingAdapter.submitList(state.pending)
+
+                        binding.tvHistoryTitle.isVisible = true
+                        binding.rvHistory.isVisible      = true
+                        historyAdapter.submitList(state.history)
                     }
                     is ConsultationsUiState.Error -> {
-                        binding.tvLoadingConsultations.text = state.message
-                        binding.tvLoadingConsultations.isVisible = true
-                        binding.rvConsultations.isVisible = false
+                        binding.tvLoadingConsultations.apply {
+                            isVisible = true
+                            text = state.message
+                        }
                     }
                 }
             }
         }
 
-        // 3) Disparar carga
         viewModel.loadConsultations()
     }
 
@@ -70,14 +111,11 @@ class ConsultationsFragment : Fragment(R.layout.fragment_consultations) {
 }
 
 @Suppress("UNCHECKED_CAST")
-class ConsultationsViewModelFactory(app: PhysioApp) : ViewModelProvider.Factory {
+class ConsultationsViewModelFactory(app: PhysioApp) : androidx.lifecycle.ViewModelProvider.Factory {
     private val repo    = PhysioRepository(RemoteDataSource())
     private val session = app.sessionManager
 
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ConsultationsViewModel::class.java)) {
-            return ConsultationsViewModel(repo, session) as T
-        }
-        throw IllegalArgumentException("Unknown VM class")
+    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+        return ConsultationsViewModel(repo, session) as T
     }
 }
