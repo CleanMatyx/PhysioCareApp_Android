@@ -47,4 +47,11 @@
     <string name="menu_mi_perfil">Mi perfil</string>
     <string name="menu_pacientes">Gestionar pacientes</string>
     <string name="menu_gestionar_citas">Gestionar citas</string>
+    <string name="confirm_delete_title">Confirmar eliminación</string>
+    <string name="confirm_delete_message">¿Estás seguro de que deseas eliminar esta cita?</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="appointment_deleted">Cita eliminada</string>
+    <string name="delete_error">Error al eliminar</string>
+    <string name="delete_error_generic">Error al eliminar cita</string>
 </resources>

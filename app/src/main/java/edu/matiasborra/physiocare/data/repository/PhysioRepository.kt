@@ -151,4 +151,10 @@ class PhysioRepository(
         return remote.getAppointmentsByPhysio(token, physioId)
     }
 
+    suspend fun deleteAppointment(appointmentId: String): ApiResponse<MessageResponse> {
+        val token = sessionManager.getToken.firstOrNull() ?: throw Exception("Token inválido")
+        return remote.deleteAppointment(token, appointmentId)
+    }
+
+
 }

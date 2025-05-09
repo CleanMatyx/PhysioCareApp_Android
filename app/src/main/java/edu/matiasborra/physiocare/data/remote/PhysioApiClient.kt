@@ -168,4 +168,11 @@ interface PhysioApiService {
         @Header("Authorization") token: String,
         @Path("id") physioId: String
     ): ApiResponse<List<AppointmentFlat>>
+
+    @DELETE("records/appointments/{id}")
+    suspend fun deleteAppointment(
+        @Header("Authorization") token: String,
+        @Path("id") appointmentId: String
+    ): ApiResponse<MessageResponse>
+
 }

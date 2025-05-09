@@ -164,4 +164,9 @@ class RemoteDataSource {
     suspend fun getAppointmentsByPhysio(token: String, physioId: String): ApiResponse<List<AppointmentFlat>> =
         api.getAppointmentsByPhysio("Bearer $token", physioId)
 
+    suspend fun deleteAppointment(token: String, appointmentId: String): ApiResponse<MessageResponse> =
+        api.deleteAppointment("Bearer $token", appointmentId)
+
+
+
 }

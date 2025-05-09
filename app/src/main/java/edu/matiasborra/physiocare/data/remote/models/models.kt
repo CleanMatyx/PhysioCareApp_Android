@@ -72,7 +72,7 @@ data class RecordItem(
 
 
 data class AppointmentFlat(
-    @SerializedName("appointmentId")
+//    @SerializedName("appointmentId")
     val id: String,
     val patientName: String,
     val physioName: String,
