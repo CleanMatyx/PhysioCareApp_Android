@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,13 +17,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import edu.matiasborra.physiocare.PhysioApp
 import edu.matiasborra.physiocare.R
+import edu.matiasborra.physiocare.auth.ui.LoginActivity
 import edu.matiasborra.physiocare.databinding.ActivityMainBinding
-import edu.matiasborra.physiocare.ui.login.LoginActivity
-import edu.matiasborra.physiocare.ui.main.consultations.ConsultationsFragment
-import edu.matiasborra.physiocare.ui.main.patients.PatientsFragment
-import edu.matiasborra.physiocare.ui.main.patients.detail.PhysioDetailFragment
-import kotlinx.coroutines.launch
+import edu.matiasborra.physiocare.ui.features.consultations.ConsultationsFragment
+import edu.matiasborra.physiocare.ui.features.patients.PatientsFragment
+import edu.matiasborra.physiocare.ui.features.patients.detail.PhysioDetailFragment
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {

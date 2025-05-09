@@ -1,9 +1,9 @@
 package edu.matiasborra.physiocare
 
 import android.app.Application
-import edu.matiasborra.physiocare.auth.SessionManager
-import edu.matiasborra.physiocare.auth.dataStore
-import edu.matiasborra.physiocare.data.remote.RemoteDataSource
+import edu.matiasborra.physiocare.utils.SessionManager
+import edu.matiasborra.physiocare.utils.dataStore
+import edu.matiasborra.physiocare.data.api.RemoteDataSource
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 
 class PhysioApp : Application() {
