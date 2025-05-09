@@ -29,14 +29,25 @@ data class PatientDetailResponse(
     val records: List<RecordItem>
 )
 
+//data class PhysioItem(
+//    val id: String,
+//    val name: String,
+//    val surname: String,
+//    val specialty: String,
+//    val licenseNumber: String,
+//    val email: String,
+//    val image: String?
+//)
+
 data class PhysioItem(
-    val id: String,
+    @SerializedName("_id")
+    val _id: String,
     val name: String,
     val surname: String,
     val specialty: String,
     val licenseNumber: String,
     val email: String,
-    val image: String?
+    val image: String? = null
 )
 
 //data class AppointmentItem(

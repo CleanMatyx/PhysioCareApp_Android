@@ -27,9 +27,9 @@ class PatientsViewModel(
     fun loadPatients() {
         viewModelScope.launch {
             _uiState.value = PatientsUiState.Loading
-            val sd     = session.sessionFlow.firstOrNull()
-            val token  = sd?.token.orEmpty()
-            val role   = sd?.role.orEmpty()
+            val sd = session.sessionFlow.firstOrNull()
+            val token = sd?.token.orEmpty()
+            val role = sd?.role.orEmpty()
             val userId = sd?.userId.orEmpty()
 
             try {

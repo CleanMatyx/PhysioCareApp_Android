@@ -1,6 +1,7 @@
 package edu.matiasborra.physiocare.ui.main.patients.detail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -31,7 +32,12 @@ class PhysioDetailFragment : Fragment(R.layout.fragment_physio_detail) {
         // Carga datos en un coroutine
         viewLifecycleOwner.lifecycleScope.launch {
             // 1) Obtenemos token y physioId
-            val token    = app.sessionManager.getToken.firstOrNull().orEmpty()
+            val token = app.sessionManager.getToken.firstOrNull().orEmpty()
+            Log.d("PhysioDetailFragment", "PhysioId: ${arguments?.getString(ARG_PHYSIO_ID)}")
+            if (token.isEmpty()) {
+                Log.d("PhysioDetailFragment", "Token is empty, aborting...")
+                return@launch
+            }
             val physioId = arguments?.getString(ARG_PHYSIO_ID).orEmpty()
 
             // 2) Llamamos al repositorio
@@ -52,9 +58,8 @@ class PhysioDetailFragment : Fragment(R.layout.fragment_physio_detail) {
                 binding.tvSpecialty.text  = getString(R.string.physio_specialty, f.specialty)
                 binding.tvLicense.text    = getString(R.string.physio_license, f.licenseNumber)
                 binding.tvEmail.text      = f.email
-            } else {
-                // TODO: manejar error (mostrar mensaje)
             }
+
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import edu.matiasborra.physiocare.PhysioApp
+import edu.matiasborra.physiocare.auth.LoginState
 import edu.matiasborra.physiocare.data.remote.RemoteDataSource
 import edu.matiasborra.physiocare.data.repository.PhysioRepository
 import edu.matiasborra.physiocare.databinding.ActivityLoginBinding
@@ -70,13 +71,13 @@ class LoginActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     when (state) {
-                        is LoginUiState.Idle    -> showLoading(false)
-                        is LoginUiState.Loading -> showLoading(true)
-                        is LoginUiState.Success -> {
+                        is LoginState.Idle    -> showLoading(false)
+                        is LoginState.Loading -> showLoading(true)
+                        is LoginState.Success -> {
                             showLoading(false)
                             navigateToMain()
                         }
-                        is LoginUiState.Error   -> {
+                        is LoginState.Error   -> {
                             showLoading(false)
                             Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT)
                                 .show()

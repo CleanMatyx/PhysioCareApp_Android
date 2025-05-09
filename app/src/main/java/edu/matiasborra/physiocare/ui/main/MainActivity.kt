@@ -3,6 +3,7 @@ package edu.matiasborra.physiocare.ui.main
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
@@ -22,7 +23,10 @@ import edu.matiasborra.physiocare.databinding.ActivityMainBinding
 import edu.matiasborra.physiocare.ui.login.LoginActivity
 import edu.matiasborra.physiocare.ui.main.consultations.ConsultationsFragment
 import edu.matiasborra.physiocare.ui.main.patients.PatientsFragment
+import edu.matiasborra.physiocare.ui.main.patients.detail.PhysioDetailFragment
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 
@@ -121,7 +125,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun showPatients() {
         supportFragmentManager.commit {
-            replace(binding.navHostContainer.id, PatientsFragment())
+            if (currentRole == "physio") {
+                val physioId = runBlocking { session.getUserId.first() }
+
+                val fragment = PhysioDetailFragment()
+                val bundle = Bundle()
+                bundle.putString("physio_id", physioId)
+                fragment.arguments = bundle
+                Log.d("MainActivity", "Physio ID: $physioId")
+                replace(binding.navHostContainer.id, fragment)
+            } else {
+                replace(binding.navHostContainer.id, PatientsFragment())
+            }
         }
     }
 

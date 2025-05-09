@@ -78,4 +78,8 @@ class SessionManager(private val dataStore: DataStore<Preferences>) {
 
     /** Flujo del token únicamente */
     val getToken: Flow<String?> = dataStore.data.map { it[TOKEN_KEY] }
+    /** Flujo del nombre de usuario únicamente */
+    val getUsername: Flow<String?> = dataStore.data.map { it[USERNAME_KEY] }
+    /** Flujo del ID de usuario únicamente */
+    val getUserId: Flow<String?> = dataStore.data.map { it[USER_ID_KEY] }
 }

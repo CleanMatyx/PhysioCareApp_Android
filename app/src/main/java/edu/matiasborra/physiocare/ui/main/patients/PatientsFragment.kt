@@ -37,16 +37,14 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentPatientsBinding.bind(view)
 
-        // 1) Leemos rol y userId
         viewLifecycleOwner.lifecycleScope.launch {
             val sd = app.sessionManager.sessionFlow.firstOrNull()
-            val role   = sd?.role.orEmpty()
+            val role = sd?.role.orEmpty()
             val userId = sd?.userId.orEmpty()
 
             Log.d("PatientsFragment", "onViewCreated: role=$role, userId=$userId")
 
             if (role == "patient") {
-                // Navegamos directamente al detalle del propio paciente
                 parentFragmentManager.commit {
                     replace(
                         R.id.nav_host_container,
@@ -56,9 +54,7 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
                 return@launch
             }
 
-            // 2) Solo fisioterapeutas/admins llegan aquí: inicializamos la lista
             adapter = PatientAdapter { patient ->
-                // clic sobre un paciente: navegar a su detalle
                 parentFragmentManager.commit {
                     replace(
                         R.id.nav_host_container,
@@ -73,7 +69,6 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
                 adapter = this@PatientsFragment.adapter
             }
 
-            // 3) Observamos el estado de carga de la lista
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.uiState.collect { state ->
@@ -97,7 +92,6 @@ class PatientsFragment : Fragment(R.layout.fragment_patients) {
                 }
             }
 
-            // 4) Disparamos la carga de todos los pacientes
             viewModel.loadPatients()
         }
     }
@@ -116,7 +110,6 @@ class PatientsViewModelFactory(
     app: PhysioApp
 ) : ViewModelProvider.Factory {
 
-    // Creamos el repo y obtenemos el sessionManager del Application
     private val session: SessionManager = app.sessionManager
     private val repo: PhysioRepository = PhysioRepository(RemoteDataSource(), session)
 

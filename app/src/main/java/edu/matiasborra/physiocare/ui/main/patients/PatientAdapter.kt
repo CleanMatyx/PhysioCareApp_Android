@@ -7,13 +7,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.data.remote.models.PatientItem
-import edu.matiasborra.physiocare.databinding.ItemPatientBinding
+import edu.matiasborra.physiocare.databinding.ItemPatientCardBinding
 
 class PatientAdapter(
     private val onClick: (PatientItem) -> Unit
-) : ListAdapter<PatientItem, PatientAdapter.VH>(DiffCallback) {
+) : ListAdapter<PatientItem, PatientAdapter.ViewHolder>(DiffCallback) {
 
-    inner class VH(private val binding: ItemPatientBinding)
+    inner class ViewHolder(private val binding: ItemPatientCardBinding)
         : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: PatientItem) {
@@ -23,17 +23,21 @@ class PatientAdapter(
                 item.name,
                 item.surname
             )
+            binding.tvPatientInsurance.text = ctx.getString(
+                R.string.patient_insurance_format,
+                item.insuranceNumber
+            )
             binding.root.setOnClickListener { onClick(item) }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = ItemPatientBinding
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemPatientCardBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
-        return VH(binding)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 

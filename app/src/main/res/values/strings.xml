@@ -1,5 +1,5 @@
 <resources>
-    <string name="patient_name_format">Nombre completo: %1$s %2$s</string>
+    <string name="patient_name_format">%1$s %2$s</string>
     <string name="patient_birth_format">Fecha de nacimiento: %1$s</string>
     <string name="patient_address_format">Dirección: %1$s</string>
     <string name="patient_insurance_format">NUSS: %1$s</string>
@@ -54,4 +54,12 @@
     <string name="appointment_deleted">Cita eliminada</string>
     <string name="delete_error">Error al eliminar</string>
     <string name="delete_error_generic">Error al eliminar cita</string>
+    <string name="error_loading_physio">Error al obtener el perfil</string>
+    <string name="cargando_pacientes">Cargando pacientes…</string>
+    <string name="nombre_completo">Nombre completo</string>
+    <string name="nuss">NUSS</string>
+    <string name="consultas_pendientes">Consultas pendientes</string>
+    <string name="hist_rico_de_consultas">Histórico de consultas</string>
+    <string name="nombre_apellido">Nombre Apellido</string>
+
 </resources>

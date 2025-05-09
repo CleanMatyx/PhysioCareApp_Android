@@ -1,5 +1,6 @@
 package edu.matiasborra.physiocare.data.remote
 
+import android.content.Context
 import edu.matiasborra.physiocare.auth.LoginResponse
 import edu.matiasborra.physiocare.data.remote.models.*
 
@@ -8,7 +9,7 @@ import edu.matiasborra.physiocare.data.remote.models.*
  * @constructor Crea una instancia de RemoteDataSource.
  * @author Matias Borra
  */
-class RemoteDataSource {
+class RemoteDataSource{
 
     private val api: PhysioApiService by lazy {
         PhysioApiClient.getRetrofit2Api()

@@ -1,13 +1,19 @@
 package edu.matiasborra.physiocare.data.remote
 
+import android.content.Context
+import android.content.Intent
 import edu.matiasborra.physiocare.auth.LoginResponse
 import edu.matiasborra.physiocare.data.remote.models.*
+import edu.matiasborra.physiocare.ui.login.LoginActivity
+import okhttp3.Interceptor
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.OkHttpClient
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.*
 import retrofit2.converter.gson.GsonConverterFactory
+import androidx.core.content.edit
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 
 /**
  * Clase que proporciona la configuración de Retrofit para acceder a la API de Physiocare.
@@ -176,3 +182,7 @@ interface PhysioApiService {
     ): ApiResponse<MessageResponse>
 
 }
+
+
+
+
