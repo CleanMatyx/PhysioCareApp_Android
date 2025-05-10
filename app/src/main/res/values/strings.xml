@@ -7,7 +7,6 @@
     <string name="user_info">Usuario: %1$s\nID: %2$s · Rol: %3$s</string>
     <string name="consultations_title">Consultas</string>
     <string name="patients_title">Pacientes</string>
-    <string name="logout_message">Sesión cerrada</string>
     <string name="app_name">PhysioCare</string>
     <string name="patient_detail_title">Detalle Paciente</string>
     <string name="perfil_de">Perfil de %1$s</string>
@@ -18,7 +17,7 @@
     <string name="appointment_treatment">Tratamiento: %1$s</string>
     <string name="appointment_observations">Observaciones: %1$s</string>
     <string name="none">Ninguna</string>
-    <string name="loading">Cargando...</string>
+    <string name="loading">Cargando…</string>
     <string name="no_consultations">No hay consultas</string>
     <string name="consultation_patient">Paciente: %1$s</string>
     <string name="consultation_physio">Fisioterapeuta: %1$s</string>
@@ -61,5 +60,28 @@
     <string name="consultas_pendientes">Consultas pendientes</string>
     <string name="hist_rico_de_consultas">Histórico de consultas</string>
     <string name="nombre_apellido">Nombre Apellido</string>
+    <string name="appointment_date_format">Cita el día %s</string>
+    <string name="appointment_physio_format">Fisioterapeuta: %s</string>
+
+    <!-- MainActivity -->
+    <!-- General -->
+    <string name="accept_button">Aceptar</string>
+    <string name="logout_message">Has cerrado sesión correctamente.</string>
+
+    <!-- About Dialog -->
+    <string name="about_title">Acerca de</string>
+    <string name="about_message">Autor: Matías Exequiel Borra Quiroz\nCurso: DAM/DAW\nAño académico: 2024/2025</string>
+
+    <!-- Bottom Navigation -->
+    <string name="menu_manage_appointments">Gestionar citas</string>
+    <string name="menu_my_profile">Mi perfil</string>
+    <string name="menu_patients">Pacientes</string>
+    <string name="menu_my_consultations">Mis consultas</string>
+
+    <!-- PatientsViewModel -->
+    <!-- Mensajes de error -->
+    <string name="error_loading_profile">Error al cargar el perfil.</string>
+    <string name="error_loading_patients">Error al cargar pacientes.</string>
+    <string name="unexpected_error">Error inesperado.</string>
 
 </resources>

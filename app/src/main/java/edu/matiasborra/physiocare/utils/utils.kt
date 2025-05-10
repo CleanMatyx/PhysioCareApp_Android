@@ -6,10 +6,17 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 
 /**
- * Compueba si hay conexión a internet en el dispositivo
- * @param context Contexto de la aplicación
- * @return true si hay conexión, false si no
+ * Utilidad para comprobar la conexión a internet en el dispositivo.
+ * Proporciona métodos para verificar si el dispositivo está conectado a través de Wi-Fi, datos móviles o Ethernet.
+ *
  * @author Matias Borra
+ */
+
+/**
+ * Comprueba si hay conexión a internet en el dispositivo.
+ *
+ * @param context Contexto de la aplicación.
+ * @return `true` si hay conexión, `false` si no.
  */
 fun checkConnection(context: Context): Boolean {
     val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager

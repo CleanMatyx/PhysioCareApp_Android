@@ -9,17 +9,33 @@ import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.data.models.AppointmentItem
 import edu.matiasborra.physiocare.databinding.ItemAppointmentBinding
 
+/**
+ * Adaptador para mostrar una lista de citas en un RecyclerView.
+ * Permite manejar y mostrar los detalles de cada cita.
+ *
+ * @author Matias Borra
+ */
 class AppointmentAdapter
-    : ListAdapter<AppointmentItem, AppointmentAdapter.VH>(DiffCallback) {
+    : ListAdapter<AppointmentItem, AppointmentAdapter.ViewHolder>(DiffCallback) {
 
-    inner class VH(private val binding: ItemAppointmentBinding)
+    /**
+     * ViewHolder que representa un elemento de la lista de citas.
+     *
+     * @param binding Enlace al layout del elemento.
+     */
+    inner class ViewHolder(private val binding: ItemAppointmentBinding)
         : RecyclerView.ViewHolder(binding.root) {
 
+        /**
+         * Vincula los datos de una cita al elemento de la lista.
+         *
+         * @param item Datos de la cita a mostrar.
+         */
         fun bind(item: AppointmentItem) {
             with(binding) {
                 val ctx = root.context
 
-                // Si physio es un objeto, extraemos nombre y apellido
+                // Si physio es un objeto, extraigo nombre y apellido
                 val physioName = item.physio
                     ?.let { "${it.name} ${it.surname}" }
                     ?: ctx.getString(R.string.none)
@@ -45,24 +61,54 @@ class AppointmentAdapter
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+    /**
+     * Crea un nuevo ViewHolder para un elemento de la lista.
+     *
+     * @param parent Contenedor padre donde se añadirá el ViewHolder.
+     * @param viewType Tipo de vista del elemento.
+     * @return Nuevo ViewHolder creado.
+     */
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemAppointmentBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
-        return VH(binding)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
+    /**
+     * Vincula un ViewHolder con los datos de una cita.
+     *
+     * @param holder ViewHolder a vincular.
+     * @param position Posición del elemento en la lista.
+     */
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
     companion object {
+        /**
+         * Callback para calcular las diferencias entre dos listas de citas.
+         */
         private val DiffCallback = object : DiffUtil.ItemCallback<AppointmentItem>() {
+            /**
+             * Verifica si dos citas tienen el mismo ID.
+             *
+             * @param old Primer elemento.
+             * @param new Segundo elemento.
+             * @return `true` si los IDs son iguales, de lo contrario `false`.
+             */
             override fun areItemsTheSame(old: AppointmentItem, new: AppointmentItem) =
-                old._id == new._id    // comparamos por identificador único
+                old._id == new._id
 
+            /**
+             * Verifica si dos citas tienen el mismo contenido.
+             *
+             * @param old Primer elemento.
+             * @param new Segundo elemento.
+             * @return `true` si los contenidos son iguales, de lo contrario `false`.
+             */
             override fun areContentsTheSame(old: AppointmentItem, new: AppointmentItem) =
                 old == new
         }

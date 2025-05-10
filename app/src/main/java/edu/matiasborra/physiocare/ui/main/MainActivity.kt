@@ -26,14 +26,39 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Actividad principal de la aplicación.
+ * Gestiona la navegación entre fragmentos y la sesión del usuario.
+ *
+ * @author Matias Borra
+ */
 class MainActivity : AppCompatActivity() {
 
+    /**
+     * Enlace al layout de la actividad.
+     */
     private lateinit var binding: ActivityMainBinding
+
+    /**
+     * Referencia a la aplicación para acceder a dependencias.
+     */
     private val app by lazy { application as PhysioApp }
+
+    /**
+     * Administrador de sesión para manejar la autenticación.
+     */
     private val session by lazy { app.sessionManager }
 
+    /**
+     * Rol actual del usuario autenticado.
+     */
     private var currentRole: String? = null
 
+    /**
+     * Configura la actividad al ser creada.
+     *
+     * @param savedInstanceState Estado guardado de la actividad.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -52,13 +77,16 @@ class MainActivity : AppCompatActivity() {
         setupBottomNav()
     }
 
+    /**
+     * Verifica la sesión del usuario y configura la interfaz de usuario.
+     */
     private fun checkSessionAndInitUI() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 session.sessionFlow.collect { data ->
-                    val token = data?.token
-                    val role = data?.role.orEmpty()
-                    val username = data?.username.orEmpty()
+                    val token = data.token
+                    val role = data.role.orEmpty()
+                    val username = data.username.orEmpty()
 
                     if (token.isNullOrEmpty()) {
                         startLogin()
@@ -77,24 +105,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Actualiza las etiquetas del menú de navegación inferior según el rol del usuario.
+     *
+     * @param role Rol del usuario.
+     */
     private fun updateBottomNavLabels(role: String) {
         val menu = binding.bottomNav.menu
         menu.clear()
         if (role == "physio") {
-            menu.add(0, R.id.nav_consultations, 0, getString(R.string.menu_gestionar_citas))
+            menu.add(0, R.id.nav_consultations, 0, getString(R.string.menu_manage_appointments))
                 .setIcon(R.drawable.ic_appointments_icon)
-            menu.add(0, R.id.nav_patients, 1, getString(R.string.menu_mi_perfil))
+            menu.add(0, R.id.nav_patients, 1, getString(R.string.menu_my_profile))
                 .setIcon(R.drawable.ic_profile_physio_icon)
-            menu.add(0, R.id.nav_physio_patients, 2, getString(R.string.menu_pacientes))
+            menu.add(0, R.id.nav_physio_patients, 2, getString(R.string.menu_patients))
                 .setIcon(R.drawable.ic_person)
         } else {
-            menu.add(0, R.id.nav_consultations, 0, getString(R.string.menu_mis_consultas))
+            menu.add(0, R.id.nav_consultations, 0, getString(R.string.menu_my_consultations))
                 .setIcon(R.drawable.ic_record_icon)
-            menu.add(0, R.id.nav_patients, 1, getString(R.string.menu_mi_perfil))
+            menu.add(0, R.id.nav_patients, 1, getString(R.string.menu_my_profile))
                 .setIcon(R.drawable.ic_user_icon)
         }
     }
 
+    /**
+     * Configura el menú de navegación inferior.
+     */
     private fun setupBottomNav() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -115,12 +151,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Muestra el fragmento de consultas.
+     */
     private fun showConsultations() {
         supportFragmentManager.commit {
             replace(binding.navHostContainer.id, ConsultationsFragment())
         }
     }
 
+    /**
+     * Muestra el fragmento de pacientes o el perfil del fisioterapeuta según el rol.
+     */
     private fun showPatients() {
         supportFragmentManager.commit {
             if (currentRole == "physio") {
@@ -138,22 +180,40 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Muestra la lista de pacientes.
+     */
     private fun showPatientList() {
         supportFragmentManager.commit {
             replace(binding.navHostContainer.id, PatientsFragment())
         }
     }
 
+    /**
+     * Inicia la actividad de inicio de sesión.
+     */
     private fun startLogin() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 
+    /**
+     * Crea el menú de opciones de la actividad.
+     *
+     * @param menu Menú a inflar.
+     * @return `true` si el menú fue creado correctamente.
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main_options, menu)
         return true
     }
 
+    /**
+     * Maneja las selecciones del menú de opciones.
+     *
+     * @param item Elemento seleccionado.
+     * @return `true` si la acción fue manejada correctamente.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_logout -> {
@@ -168,6 +228,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Realiza el cierre de sesión del usuario.
+     */
     private fun performLogout() {
         lifecycleScope.launch {
             session.clearSession()
@@ -176,11 +239,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Muestra un cuadro de diálogo con información sobre la aplicación.
+     */
     private fun showAboutDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Acerca de")
-            .setMessage("Autor: Matías Exequiel Borra Quiroz\nCurso: DAM/DAW\nAño académico: 2024/2025")
-            .setPositiveButton("Aceptar", null)
+            .setTitle(getString(R.string.about_title))
+            .setMessage(getString(R.string.about_message))
+            .setPositiveButton(getString(R.string.accept_button), null)
             .show()
     }
 }

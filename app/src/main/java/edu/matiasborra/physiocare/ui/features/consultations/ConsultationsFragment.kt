@@ -20,11 +20,25 @@ import edu.matiasborra.physiocare.ui.features.consultations.adapter.Consultation
 import edu.matiasborra.physiocare.ui.features.patients.detail.AppointmentDetailFragment
 import kotlinx.coroutines.launch
 
+/**
+ * Fragmento para gestionar y mostrar las consultas de fisioterapia.
+ *
+ * Este fragmento utiliza un ViewModel para cargar y observar el estado de las consultas,
+ * mostrando diferentes listas según el tipo de usuario (fisioterapeuta o paciente).
+ *
+ * @author Matias Borra
+ */
 class ConsultationsFragment : Fragment() {
 
+    /**
+     * Enlace al layout del fragmento.
+     */
     private var _binding: FragmentConsultationsBinding? = null
     private val binding get() = _binding!!
 
+    /**
+     * ViewModel asociado al fragmento para manejar la lógica de negocio.
+     */
     private val viewModel by viewModels<ConsultationsViewModel> {
         ConsultationsViewModelFactory(requireActivity().application as PhysioApp)
     }
@@ -33,6 +47,14 @@ class ConsultationsFragment : Fragment() {
     private lateinit var pendingAdapter: ConsultationAdapter
     private lateinit var historyAdapter: ConsultationAdapter
 
+    /**
+     * Crea la vista del fragmento inflando el layout correspondiente.
+     *
+     * @param inflater Inflador de vistas.
+     * @param container Contenedor padre.
+     * @param savedInstanceState Estado guardado del fragmento.
+     * @return Vista inflada del fragmento.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,6 +82,12 @@ class ConsultationsFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Configura las vistas y observa el estado del ViewModel.
+     *
+     * @param view Vista creada.
+     * @param savedInstanceState Estado guardado del fragmento.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -110,6 +138,11 @@ class ConsultationsFragment : Fragment() {
         viewModel.loadConsultations()
     }
 
+    /**
+     * Abre el detalle de una cita seleccionada.
+     *
+     * @param appointment Objeto con los datos de la cita.
+     */
     private fun openAppointmentDetail(appointment: AppointmentFlat) {
         val bundle = Bundle().apply {
             putSerializable("appointment", appointment)
@@ -125,15 +158,30 @@ class ConsultationsFragment : Fragment() {
         }
     }
 
+    /**
+     * Limpia el enlace al layout cuando la vista es destruida.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
 
+/**
+ * Fábrica para crear instancias de ConsultationsViewModel.
+ *
+ * @property app Aplicación principal que contiene los repositorios y gestores de sesión.
+ * @author Matias Borra
+ */
 class ConsultationsViewModelFactory(
     private val app: PhysioApp
 ) : ViewModelProvider.Factory {
+    /**
+     * Crea una instancia de ConsultationsViewModel.
+     *
+     * @param modelClass Clase del ViewModel.
+     * @return Instancia de ConsultationsViewModel.
+     */
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val repo = app.physioRepo
         val session = app.sessionManager

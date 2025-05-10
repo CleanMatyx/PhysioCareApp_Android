@@ -18,18 +18,48 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Fragmento para mostrar los detalles de una cita.
+ * Proporciona opciones para eliminar la cita o ver el perfil del fisioterapeuta.
+ *
+ * @author Matias Borra
+ */
 class AppointmentDetailFragment : Fragment() {
 
+    /**
+     * Enlace al layout del fragmento.
+     */
     private var _binding: FragmentAppointmentDetailBinding? = null
     private val binding get() = _binding!!
+
+    /**
+     * Cita seleccionada cuyos detalles se mostrarán.
+     */
     private var appointment: AppointmentFlat? = null
+
+    /**
+     * Referencia a la aplicación para acceder al repositorio.
+     */
     private val app by lazy { requireActivity().application as PhysioApp }
 
+    /**
+     * Inicializa el fragmento y recupera los argumentos.
+     *
+     * @param savedInstanceState Estado guardado del fragmento.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appointment = arguments?.getSerializable("appointment") as? AppointmentFlat
     }
 
+    /**
+     * Infla el layout del fragmento.
+     *
+     * @param inflater Inflador para crear la vista.
+     * @param container Contenedor padre de la vista.
+     * @param savedInstanceState Estado guardado del fragmento.
+     * @return Vista inflada del fragmento.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,6 +68,12 @@ class AppointmentDetailFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Configura la vista después de que se haya creado.
+     *
+     * @param view Vista creada.
+     * @param savedInstanceState Estado guardado del fragmento.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -87,7 +123,6 @@ class AppointmentDetailFragment : Fragment() {
                     .show()
             }
 
-            // Ver perfil fisio
             val physioId = it.physioId
             if (!physioId.isNullOrBlank()) {
                 binding.btnViewPhysio.setOnClickListener { _ ->
@@ -104,6 +139,9 @@ class AppointmentDetailFragment : Fragment() {
         }
     }
 
+    /**
+     * Libera los recursos del binding al destruir la vista.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

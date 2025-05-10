@@ -12,24 +12,62 @@ import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+/**
+ * Representa los diferentes estados de la interfaz de usuario para las consultas.
+ */
 sealed class ConsultationsUiState {
+
+    /**
+     * Estado que indica que los datos están cargando.
+     */
     object Loading : ConsultationsUiState()
+
+    /**
+     * Estado que contiene las consultas de un fisioterapeuta.
+     *
+     * @property all Lista de todas las consultas.
+     */
     data class SuccessPhysio(val all: List<AppointmentFlat>) : ConsultationsUiState()
+
+    /**
+     * Estado que contiene las consultas de un paciente.
+     *
+     * @property pending Lista de consultas pendientes.
+     * @property history Lista de consultas pasadas.
+     */
     data class SuccessPatient(
         val pending: List<AppointmentFlat>,
         val history: List<AppointmentFlat>
     ) : ConsultationsUiState()
+
+    /**
+     * Estado que indica un error al cargar las consultas.
+     *
+     * @property message Mensaje de error.
+     */
     data class Error(val message: String) : ConsultationsUiState()
 }
 
+/**
+ * ViewModel para manejar la lógica de negocio de las consultas.
+ *
+ * @property repo Repositorio para acceder a los datos de las consultas.
+ * @property session Administrador de sesión para obtener información del usuario.
+ */
 class ConsultationsViewModel(
     private val repo: PhysioRepository,
     private val session: SessionManager
 ) : ViewModel() {
 
+    /**
+     * Flujo de estado de la interfaz de usuario.
+     */
     private val _uiState = MutableStateFlow<ConsultationsUiState>(ConsultationsUiState.Loading)
     val uiState: StateFlow<ConsultationsUiState> = _uiState
 
+    /**
+     * Carga las consultas del usuario actual según su rol.
+     */
     fun loadConsultations() {
         viewModelScope.launch {
             _uiState.value = ConsultationsUiState.Loading

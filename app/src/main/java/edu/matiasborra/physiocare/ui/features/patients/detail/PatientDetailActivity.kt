@@ -11,15 +11,36 @@ import edu.matiasborra.physiocare.databinding.ActivityPatientDetailBinding
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
+/**
+ * Actividad para mostrar los detalles de un paciente.
+ * Gestiona la carga del fragmento de detalles según el rol del usuario.
+ *
+ * @author Matias Borra
+ */
 class PatientDetailActivity : AppCompatActivity() {
 
     companion object {
+        /**
+         * Clave para pasar el ID del paciente como extra.
+         */
         const val EXTRA_PATIENT_ID = "patient_id"
     }
 
+    /**
+     * Enlace al layout de la actividad.
+     */
     private lateinit var binding: ActivityPatientDetailBinding
+
+    /**
+     * Administrador de sesión para obtener información del usuario.
+     */
     private val session: SessionManager by lazy { (application as PhysioApp).sessionManager }
 
+    /**
+     * Inicializa la actividad y configura la barra de herramientas.
+     *
+     * @param savedInstanceState Estado guardado de la actividad.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientDetailBinding.inflate(layoutInflater)
@@ -28,26 +49,22 @@ class PatientDetailActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Esperamos a tener la sesión para decidir qué ID usar
         lifecycleScope.launch {
             val sd = session.sessionFlow.firstOrNull()
-            val role   = sd?.role.orEmpty()
+            val role = sd?.role.orEmpty()
             val userId = sd?.userId.orEmpty()
 
-            // Si es physio tomamos el extra, si no usamos nuestro propio userId
             val idToLoad = if (role == "physio") {
                 intent.getStringExtra(EXTRA_PATIENT_ID).orEmpty()
             } else {
                 userId
             }
 
-            // Sólo procedemos si tenemos un ID válido
             if (idToLoad.isBlank()) {
-                finish() // nada que mostrar
+                finish()
                 return@launch
             }
 
-            // Cargamos el fragmento con el ID adecuado
             if (savedInstanceState == null) {
                 supportFragmentManager.commit {
                     replace(
@@ -59,6 +76,11 @@ class PatientDetailActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Maneja la acción de navegación hacia atrás en la barra de herramientas.
+     *
+     * @return `true` si la acción fue manejada correctamente.
+     */
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

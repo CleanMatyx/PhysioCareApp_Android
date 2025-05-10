@@ -1,7 +1,6 @@
 package edu.matiasborra.physiocare.ui.features.patients.detail
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
@@ -13,21 +12,48 @@ import edu.matiasborra.physiocare.R
 import edu.matiasborra.physiocare.databinding.FragmentPatientDetailBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
+/**
+ * Fragmento para mostrar los detalles de un paciente.
+ * Proporciona información del paciente y sus tratamientos previos.
+ *
+ * @author Matias Borra
+ */
 class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
 
     companion object {
+        /**
+         * Clave para pasar el ID del paciente como argumento.
+         */
         private const val ARG_PATIENT_ID = "patient_id"
+
+        /**
+         * Crea una nueva instancia del fragmento con el ID del paciente.
+         *
+         * @param id ID del paciente.
+         * @return Instancia del fragmento.
+         */
         fun newInstance(id: String) = PatientDetailFragment().apply {
             arguments = Bundle().apply { putString(ARG_PATIENT_ID, id) }
         }
     }
 
+    /**
+     * Enlace al layout del fragmento.
+     */
     private var _binding: FragmentPatientDetailBinding? = null
     private val binding get() = _binding!!
 
+    /**
+     * Referencia a la aplicación para acceder al repositorio y la sesión.
+     */
     private val app by lazy { requireActivity().application as PhysioApp }
+
+    /**
+     * ViewModel para manejar la lógica de negocio del fragmento.
+     */
     private val viewModel by viewModels<PatientDetailViewModel> {
         PatientDetailViewModel.Factory(
             repo = app.physioRepo,
@@ -36,25 +62,14 @@ class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
         )
     }
 
+    /**
+     * Configura la vista del fragmento después de que se haya creado.
+     *
+     * @param view Vista creada.
+     * @param savedInstanceState Estado guardado del fragmento.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentPatientDetailBinding.bind(view)
-
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            val sd = app.sessionManager.sessionFlow.firstOrNull()
-//            val role = sd?.role.orEmpty()
-//            val user = sd?.username.orEmpty()
-//
-//            binding.tvTitle.text = if (role == "patient") {
-//                getString(R.string.perfil_de, user)
-//            } else {
-//                getString(
-//                    R.string.patient_name_format,
-//                    requireArguments().getString(ARG_PATIENT_ID).orEmpty(),
-//                    ""
-//                )
-//            }
-//            //binding.containerAppointments.isVisible = role != "patient"
-//        }
 
         viewModel.loadPatientAndRecords()
 
@@ -64,13 +79,12 @@ class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
 
                 when (state) {
                     is PatientDetailUiState.Loading -> {
-                        // TODO: agregar loader si querés
+                        // agregar loader mientras carga la información
                     }
                     is PatientDetailUiState.Success -> {
                         val p = state.patient
                         val r = state.records
 
-                        // Datos del paciente
                         binding.tvFullName.text = getString(R.string.patient_name_format, p.name, p.surname)
                         binding.tvBirthDate.text = getString(R.string.patient_birth_format, p.birthDate)
                         binding.tvAddress.text = getString(R.string.patient_address_format, p.address)
@@ -78,8 +92,7 @@ class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
                         binding.tvEmail.text = getString(R.string.patient_email_format, p.email)
                         binding.tvMedicalHistory.text = r.firstOrNull()?.medicalRecord
 
-                        Log.d("PatientDetailFragment", "Records: $r")
-                        // Tratamientos pasados
+                        // Tratamientos ya realizados
                         if (binding.containerAppointments.isVisible) {
                             val pastAppointments = r
                                 .flatMap { it.appointments }
@@ -125,6 +138,9 @@ class PatientDetailFragment : Fragment(R.layout.fragment_patient_detail) {
         }
     }
 
+    /**
+     * Libera los recursos del binding al destruir la vista.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
